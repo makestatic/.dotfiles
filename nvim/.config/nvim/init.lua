@@ -40,13 +40,30 @@ vim.opt.rtp:prepend(lazypath)
 require("lazy").setup(
 	{
 		{
-			'Mofiqul/vscode.nvim',
+			"armannikoyan/rusty",
+			-- 'Mofiqul/vscode.nvim',
 			-- "briones-gabriel/darcula-solid.nvim",
 			-- dependencies = { "rktjmp/lush.nvim" },
+			lazy = false,
 			priority = 1000,
+			opts = {},
 			config = function()
-				vim.cmd("colorscheme vscode")
+				vim.cmd("colorscheme rusty")
 			end
+		},
+		-- For `plugins.lua` users.
+		{
+			"OXY2DEV/markview.nvim",
+			lazy = false,
+
+			-- For `nvim-treesitter` users.
+			priority = 49,
+
+			-- For blink.cmp's completion
+			-- source
+			-- dependencies = {
+			--     "saghen/blink.cmp"
+			-- },
 		},
 		{
 			'windwp/nvim-autopairs',
@@ -133,7 +150,7 @@ require("lazy").setup(
 			"stevearc/conform.nvim",
 			config = function()
 				local conform = require("conform")
-				conform.setup({ formatters_by_ft = { lua = { "stylua" } } })
+				conform.setup({ formatters_by_ft = { lua = { "stylua" }, go = { "gofmt", "goimports" }, } })
 				vim.keymap.set(
 					"n",
 					"<leader>fm",
@@ -171,28 +188,6 @@ require("lazy").setup(
 					automatic_enable = true,
 				}
 			end,
-		},
-		{
-			"folke/lazydev.nvim",
-			ft = "lua", -- only load on lua files
-			opts = {
-				library = {
-					-- See the configuration section for more details
-					-- Load luvit types when the `vim.uv` word is found
-					{ path = "${3rd}/luv/library", words = { "vim%.uv" } },
-				},
-				sources = {
-					-- add lazydev to your completion providers
-					default = { "lazydev" },
-					providers = {
-						lazydev = {
-							name = "LazyDev",
-							module = "lazydev.integrations.blink",
-							score_offset = 100, -- show at a higher priority than lsp
-						},
-					},
-				},
-			},
 		},
 		{
 			"saghen/blink.cmp",
@@ -293,6 +288,7 @@ require("lazy").setup(
 				},
 			},
 		},
+
 		{
 			"ibhagwan/fzf-lua",
 			dependencies = { "nvim-tree/nvim-web-devicons" },
@@ -322,12 +318,21 @@ require("lazy").setup(
 	}
 )
 
--- Enable built-in LSP (example for LuaLS)
-vim.lsp.config(
-	"luals",
-	{ cmd = { "lua-language-server" }, filetypes = { "lua" }, root_markers = { ".luarc.json", ".luarc.jsonc" } }
-)
-vim.lsp.enable("luals")
+vim.lsp.config.gopls = {
+	cmd = { "gopls" },
+	settings = {
+		gopls = {
+			usePlaceholders = true,
+			completeUnimported = true,
+			semanticTokens = true,
+			analyses = {
+				unusedparams = true,
+			},
+			staticcheck = true,
+			gofumpt = true,
+		},
+	},
+}
 
 -- Keymaps
 vim.keymap.set("n", "<leader>v", ":vsplit<CR>")

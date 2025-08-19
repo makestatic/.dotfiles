@@ -26,6 +26,7 @@ export PATH="$LOCAL_BIN:$PATH"
 export BUN_INSTALL="$LOCAL_BIN/bun"
 export PATH="$BUN_INSTALL/bin:$PATH"
 export PATH="$LOCAL_BIN/zig:$PATH"
+export PATH="$LOCAL_BIN/go/bin:$PATH"
 export NODE_INSTALL="$LOCAL_BIN/node"
 export PATH="$NODE_INSTALL/bin:$PATH"
 
