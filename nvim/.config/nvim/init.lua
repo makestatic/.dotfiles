@@ -39,48 +39,15 @@ vim.opt.rtp:prepend(lazypath)
 
 require("lazy").setup(
 	{
+		{ 'echasnovski/mini.surround', version = '*', opts = {}, },
 		{
 			"armannikoyan/rusty",
-			-- 'Mofiqul/vscode.nvim',
-			-- "briones-gabriel/darcula-solid.nvim",
-			-- dependencies = { "rktjmp/lush.nvim" },
 			lazy = false,
 			priority = 1000,
 			opts = {},
 			config = function()
 				vim.cmd("colorscheme rusty")
-			end
-		},
-		-- For `plugins.lua` users.
-		{
-			"OXY2DEV/markview.nvim",
-			lazy = false,
-
-			-- For `nvim-treesitter` users.
-			priority = 49,
-
-			-- For blink.cmp's completion
-			-- source
-			-- dependencies = {
-			--     "saghen/blink.cmp"
-			-- },
-		},
-		{
-			'windwp/nvim-autopairs',
-			event = "InsertEnter",
-			config = true,
-			opts = {},
-		},
-		{
-			"lukas-reineke/indent-blankline.nvim",
-			main = "ibl",
-			---@module "ibl"
-			---@type ibl.config
-			opts = {
-				scope = {
-					enabled = true
-				}
-			},
+			end,
 		},
 		{
 			"Exafunction/windsurf.nvim",
@@ -112,29 +79,92 @@ require("lazy").setup(
 			end
 		},
 		{
+			"mfussenegger/nvim-dap",
+			dependencies = {
+				"igorlfs/nvim-dap-view",
+				"theHamsta/nvim-dap-virtual-text",
+				"Jorenar/nvim-dap-disasm",
+			},
+			config = function()
+				local dap = require("dap")
+				require("nvim-dap-virtual-text").setup()
+				require("dap-disasm").setup({})
+				require("dap-view").setup({
+					winbar = {
+						controls = {
+							enabled = true,
+						},
+						sections = {
+							"watches", "scopes", "exceptions", "breakpoints", "threads", "repl",
+							"disassembly",
+						},
+					},
+				})
+				vim.keymap.set('n', '<leader>dc', function() require('dap').continue() end)
+				vim.keymap.set('n', '<leader>dn', function() require('dap').step_over() end)
+				vim.keymap.set('n', '<Leader>di', function() require('dap').step_into() end)
+				vim.keymap.set('n', '<Leader>do', function() require('dap').step_out() end)
+				vim.keymap.set('n', '<Leader>db', function() require('dap').toggle_breakpoint() end)
+				vim.keymap.set('n', '<Leader>do', function() require("dap-view").toggle() end)
+
+				dap.adapters.gdb = {
+					type = "executable",
+					command = "gdb",
+					args = { "--interpreter=dap", "--eval-command", "set print pretty on" }
+				}
+				dap.adapters.codelldb = {
+					type = "executable",
+					command = "codelldb",
+				}
+			end,
+		},
+		{
+			"sphamba/smear-cursor.nvim",
+			opts = {},
+		},
+		{
 			"nvim-treesitter/nvim-treesitter",
 			build = ":TSUpdate",
-			dependencies = { "windwp/nvim-ts-autotag", "axelvc/template-string.nvim" },
+			dependencies = {
+				"windwp/nvim-ts-autotag",
+				"axelvc/template-string.nvim",
+			},
 			config = function()
-				require("nvim-treesitter.configs").setup(
-					{
-						auto_install = true,
-						highlight = { enable = true },
-						indent = { enable = true },
-						autotag = { enable = true },
-						incremental_selection = {
-							enable = true,
-							keymaps = {
-								init_selection = "<enter>",
-								node_incremental = "<enter>",
-								scope_incremental = false,
-								node_decremental = "<bs>"
-							}
-						}
-					}
-				)
+				require("nvim-treesitter.configs").setup({
+					auto_install = true,
+					highlight = { enable = true },
+					indent = { enable = true },
+					autotag = { enable = true },
+					incremental_selection = {
+						enable = true,
+						keymaps = {
+							init_selection = "<CR>",
+							node_incremental = "<CR>",
+							scope_incremental = false,
+							node_decremental = "<BS>",
+						},
+					},
+				})
 				require("template-string").setup({})
-			end
+
+				vim.filetype.add({
+					extension = {
+						c3  = "c3",
+						c3i = "c3",
+						c3t = "c3",
+					},
+				})
+
+				local parser_config = require("nvim-treesitter.parsers").get_parser_configs()
+				parser_config.c3 = {
+					install_info = {
+						url = "https://github.com/c3lang/tree-sitter-c3",
+						files = { "src/parser.c", "src/scanner.c" },
+						branch = "main",
+					},
+					filetype = "c3",
+				}
+			end,
 		},
 		{
 			"ej-shafran/compile-mode.nvim",
@@ -188,6 +218,11 @@ require("lazy").setup(
 					automatic_enable = true,
 				}
 			end,
+		},
+		{
+			"windwp/nvim-autopairs",
+			event = "InsertEnter",
+			opts = {},
 		},
 		{
 			"saghen/blink.cmp",
@@ -318,6 +353,25 @@ require("lazy").setup(
 	}
 )
 
+require("lspconfig").c3_lsp.setup({
+	cmd = { "c3lsp" },
+	filetypes = { "c3", "c3i" }
+})
+
+vim.lsp.config.zls = {
+	settings = {
+		zls = {
+			-- absolute path to the Zig standard library cuz i downloaded 0.15.1 nightly
+			zig_lib_path = vim.loop.os_homedir() .. "/.local/bin/zig/lib/",
+		}
+	},
+}
+
+vim.lsp.config.clangd = {
+	cmd = { "clangd" },
+	filetypes = { "c", "cpp", "cc" }
+}
+
 vim.lsp.config.gopls = {
 	cmd = { "gopls" },
 	settings = {
@@ -383,7 +437,7 @@ vim.api.nvim_create_autocmd("LspAttach", {
 		vim.keymap.set({ "n", "v" }, "<leader>ca", vim.lsp.buf.code_action, bufopts)
 		vim.keymap.set("n", "[d", vim.diagnostic.goto_prev, bufopts)
 		vim.keymap.set("n", "]d", vim.diagnostic.goto_next, bufopts)
-		vim.keymap.set("n", "<leader>da", vim.diagnostic.open_float, bufopts)
+		vim.keymap.set("n", "<leader>K", vim.diagnostic.open_float, bufopts)
 		vim.keymap.set("n", "<leader>q", vim.diagnostic.setloclist, bufopts)
 	end,
 })
