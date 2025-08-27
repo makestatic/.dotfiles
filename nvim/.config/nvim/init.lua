@@ -358,6 +358,12 @@ require("lspconfig").c3_lsp.setup({
 	filetypes = { "c3", "c3i" }
 })
 
+require("lspconfig").clangd.setup({
+	cmd = { "clangd" },
+    filetypes = { "c", "cpp", "cc" },
+	root_dir = require("lspconfig.util").root_pattern("compile_commands.json"),
+})
+
 vim.lsp.config.zls = {
 	settings = {
 		zls = {
@@ -365,11 +371,6 @@ vim.lsp.config.zls = {
 			zig_lib_path = vim.loop.os_homedir() .. "/.local/bin/zig/lib/",
 		}
 	},
-}
-
-vim.lsp.config.clangd = {
-	cmd = { "clangd" },
-	filetypes = { "c", "cpp", "cc" }
 }
 
 vim.lsp.config.gopls = {
