@@ -29,6 +29,22 @@ vim.keymap.set("n", "<leader>dv", function()
 	vim.diagnostic.config({ virtual_lines = not vim.diagnostic.config().virtual_lines })
 end)
 
+
+local signs = {
+	Error = " ",
+	Warn  = " ",
+	Info  = " ",
+	Hint  = " ",
+}
+
+for type, icon in pairs(signs) do
+	local hl = "DiagnosticSign" .. type
+	vim.fn.sign_define(hl, { text = icon, texthl = hl, numhl = "" })
+end
+
+vim.fn.sign_define('DapBreakpoint', { text = '🟥', texthl = '', linehl = '', numhl = '' })
+vim.fn.sign_define('DapStopped', { text = '▶️', texthl = '', linehl = '', numhl = '' })
+
 local lazypath = vim.fn.stdpath("data") .. "/lazy/lazy.nvim"
 if not vim.uv.fs_stat(lazypath) then
 	vim.fn.system(
@@ -39,15 +55,52 @@ vim.opt.rtp:prepend(lazypath)
 
 require("lazy").setup(
 	{
+		{
+			"folke/flash.nvim",
+			event = "VeryLazy",
+			---@type Flash.Config
+			opts = {},
+			-- stylua: ignore
+			keys = {
+				{ "s",     mode = { "n", "x", "o" }, function() require("flash").jump() end,              desc = "Flash" },
+				{ "S",     mode = { "n", "x", "o" }, function() require("flash").treesitter() end,        desc = "Flash Treesitter" },
+				{ "r",     mode = "o",               function() require("flash").remote() end,            desc = "Remote Flash" },
+				{ "R",     mode = { "o", "x" },      function() require("flash").treesitter_search() end, desc = "Treesitter Search" },
+				{ "<c-s>", mode = { "c" },           function() require("flash").toggle() end,            desc = "Toggle Flash Search" },
+			},
+		},
 		{ 'echasnovski/mini.surround', version = '*', opts = {}, },
 		{
-			"armannikoyan/rusty",
-			lazy = false,
-			priority = 1000,
-			opts = {},
-			config = function()
-				vim.cmd("colorscheme rusty")
-			end,
+			{
+				"mathofprimes/nightvision-nvim",
+			},
+			{
+				"nyoom-engineering/oxocarbon.nvim",
+				lazy = false,
+				priority = 1000,
+				opts = {},
+				config = function()
+					vim.cmd("colorscheme oxocarbon")
+				end,
+			},
+			{
+				"phha/zenburn.nvim",
+			},
+			{
+				"armannikoyan/rusty",
+			},
+			{
+				"blazkowolf/gruber-darker.nvim",
+				opts = {
+					bold = false,
+					italic = {
+						strings = false,
+						comments = false,
+						operators = false,
+						folds = false,
+					},
+				},
+			},
 		},
 		{
 			"Exafunction/windsurf.nvim",
@@ -82,8 +135,8 @@ require("lazy").setup(
 			"mfussenegger/nvim-dap",
 			dependencies = {
 				"igorlfs/nvim-dap-view",
-				"theHamsta/nvim-dap-virtual-text",
 				"Jorenar/nvim-dap-disasm",
+				"theHamsta/nvim-dap-virtual-text",
 			},
 			config = function()
 				local dap = require("dap")
@@ -91,30 +144,54 @@ require("lazy").setup(
 				require("dap-disasm").setup({})
 				require("dap-view").setup({
 					winbar = {
-						controls = {
-							enabled = true,
-						},
 						sections = {
-							"watches", "scopes", "exceptions", "breakpoints", "threads", "repl",
+							"watches", "scopes", "breakpoints", "threads", "repl",
 							"disassembly",
 						},
 					},
 				})
+
 				vim.keymap.set('n', '<leader>dc', function() require('dap').continue() end)
 				vim.keymap.set('n', '<leader>dn', function() require('dap').step_over() end)
-				vim.keymap.set('n', '<Leader>di', function() require('dap').step_into() end)
-				vim.keymap.set('n', '<Leader>do', function() require('dap').step_out() end)
-				vim.keymap.set('n', '<Leader>db', function() require('dap').toggle_breakpoint() end)
-				vim.keymap.set('n', '<Leader>do', function() require("dap-view").toggle() end)
+				vim.keymap.set('n', '<leader>di', function() require('dap').step_into() end)
+				vim.keymap.set('n', '<leader>do', function() require('dap').step_out() end)
+				vim.keymap.set('n', '<leader>db', function() require('dap').toggle_breakpoint() end)
+				vim.keymap.set('n', '<leader>dr', function() require('dap').repl.open() end)
+				vim.keymap.set('n', '<leader>dl', function() require('dap').run_last() end)
+				vim.keymap.set('n', '<leader>du', function() require("dap-view").toggle() end)
+
 
 				dap.adapters.gdb = {
 					type = "executable",
 					command = "gdb",
 					args = { "--interpreter=dap", "--eval-command", "set print pretty on" }
 				}
-				dap.adapters.codelldb = {
+				dap.adapters.lldb = {
 					type = "executable",
-					command = "codelldb",
+					command = "/usr/sbin/lldb-dap",
+					name = "lldb",
+				}
+				dap.configurations.zig = {
+					{
+						name = 'Launch',
+						type = 'lldb',
+						request = 'launch',
+						program = function()
+							local input = vim.fn.input('Path to executable: ',
+								vim.fn.getcwd() .. '/', 'file')
+							return input
+						end,
+						args = {
+							function()
+								return {
+									vim.fn.input('Args: ',
+										vim.fn.getcwd() .. '/', 'file')
+								}
+							end
+						},
+						cwd = '${workspaceFolder}',
+						stopOnEntry = false,
+					}
 				}
 			end,
 		},
@@ -360,9 +437,22 @@ require("lspconfig").c3_lsp.setup({
 
 require("lspconfig").clangd.setup({
 	cmd = { "clangd" },
-    filetypes = { "c", "cpp", "cc" },
+	filetypes = { "c", "cpp", "cc" },
 	root_dir = require("lspconfig.util").root_pattern("compile_commands.json"),
 })
+
+vim.lsp.config('serve_d', {
+	cmd = { "serve-d" },
+	settings = {
+		d = {
+			dmdPath = "ldc2",
+			enableAutoComplete = true,
+		},
+	},
+	filetypes = { "d", "di" },
+	root_markers = { "dub.json", "dub.sdl" },
+})
+vim.lsp.enable('serve_d');
 
 vim.lsp.config.zls = {
 	settings = {
