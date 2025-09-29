@@ -21,16 +21,15 @@ alias du='du -ch'
 alias emacs='emacs -nw'
 
 # Local bins
-export LOCAL_BIN="$HOME/.local/bin"
-export PATH="$LOCAL_BIN:$PATH"
-export BUN_INSTALL="$LOCAL_BIN/bun"
+export OPT="/opt/"
+export PATH="$OPT:$PATH"
+export BUN_INSTALL="$OPT/bun"
 export PATH="$BUN_INSTALL/bin:$PATH"
-export PATH="$LOCAL_BIN/zig:$PATH"
-export PATH="$LOCAL_BIN/c3:$PATH"
-export PATH="$LOCAL_BIN/ldc/bin:$PATH"
-export PATH="$LOCAL_BIN/go/bin:$PATH"
-export NODE_INSTALL="$LOCAL_BIN/node"
-export PATH="$NODE_INSTALL/bin:$PATH"
+export PATH="$OPT/zig:$PATH"
+export PATH="$OPT/c3:$PATH"
+export PATH="$OPT/ldc/bin:$PATH"
+export PATH="$OPT/go/bin:$PATH"
+export PATH="$OPT/node/bin:$PATH"
 
 alias tmux-sessionizer='~/tmux-sessionizer.sh'
 bind -x '"\C-f": tmux-sessionizer'

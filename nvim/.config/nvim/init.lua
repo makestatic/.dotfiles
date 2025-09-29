@@ -64,8 +64,8 @@ require("lazy").setup({
 	{ "phha/zenburn.nvim" },
 	{ "armannikoyan/rusty" },
 	{ "rktjmp/lush.nvim" },
-	-- { "blazkowolf/gruber-darker.nvim",   opts = { bold = false, italic = { strings = false, comments = false, operators = false, folds = false } } },
 	{ "vague2k/vague.nvim", opts = { italic = false } },
+
 	{
 		"nvim-lualine/lualine.nvim",
 		dependencies = { "echasnovski/mini.icons" },
@@ -98,26 +98,19 @@ require("lazy").setup({
 			})
 		end,
 	},
+
 	{
 		"jake-stewart/multicursor.nvim",
 		config = function()
 			local mc = require("multicursor-nvim")
 			mc.setup()
 			local set = vim.keymap.set
-			set({ "n", "x" }, "<up>", function()
+			set({ "n", "x" }, "<C-S-Up>", function()
 				mc.lineAddCursor(-1)
 			end)
-			set({ "n", "x" }, "<down>", function()
+			set({ "n", "x" }, "<C-S-Down>", function()
 				mc.lineAddCursor(1)
 			end)
-			set({ "n", "x" }, "<leader><up>", function()
-				mc.lineSkipCursor(-1)
-			end)
-			set({ "n", "x" }, "<leader><down>", function()
-				mc.lineSkipCursor(1)
-			end)
-			set("n", "<c-m>", mc.handleMouse)
-			set("n", "<c-r>", mc.handleMouseRelease)
 			set({ "n", "x" }, "<c-l>", mc.toggleCursor)
 			mc.addKeymapLayer(function(layerSet)
 				layerSet({ "n", "x" }, "<left>", mc.prevCursor)
@@ -167,53 +160,6 @@ require("lazy").setup({
 	},
 
 	{
-		"mfussenegger/nvim-dap",
-		dependencies = { "igorlfs/nvim-dap-view", "Jorenar/nvim-dap-disasm", "theHamsta/nvim-dap-virtual-text" },
-		config = function()
-			local dap = require("dap")
-			require("nvim-dap-virtual-text").setup()
-			require("dap-disasm").setup({})
-			require("dap-view").setup({
-				winbar = { sections = { "watches", "scopes", "breakpoints", "threads", "repl", "disassembly" } },
-			})
-
-			local map = vim.keymap.set
-			map("n", "<leader>dc", dap.continue)
-			map("n", "<leader>dn", dap.step_over)
-			map("n", "<leader>di", dap.step_into)
-			map("n", "<leader>do", dap.step_out)
-			map("n", "<leader>db", dap.toggle_breakpoint)
-			map("n", "<leader>dr", dap.repl.open)
-			map("n", "<leader>dl", dap.run_last)
-			map("n", "<leader>du", function()
-				require("dap-view").toggle()
-			end)
-
-			dap.adapters.gdb = {
-				type = "executable",
-				command = "gdb",
-				args = { "--interpreter=dap", "--eval-command", "set print pretty on" },
-			}
-			dap.adapters.lldb = { type = "executable", command = "/usr/sbin/lldb-dap", name = "lldb" }
-			dap.configurations.zig = {
-				{
-					name = "Launch",
-					type = "lldb",
-					request = "launch",
-					program = function()
-						return vim.fn.input("Path: ", vim.fn.getcwd() .. "/", "file")
-					end,
-					args = function()
-						return vim.split(vim.fn.input("Args: "), " ")
-					end,
-					cwd = "${workspaceFolder}",
-					stopOnEntry = false,
-				},
-			}
-		end,
-	},
-
-	{
 		"nvim-treesitter/nvim-treesitter",
 		build = ":TSUpdate",
 		dependencies = { "windwp/nvim-ts-autotag", "axelvc/template-string.nvim" },
@@ -234,16 +180,6 @@ require("lazy").setup({
 				},
 			})
 			require("template-string").setup({})
-			vim.filetype.add({ extension = { c3 = "c3", c3i = "c3", c3t = "c3" } })
-			local parser_config = require("nvim-treesitter.parsers").get_parser_configs()
-			parser_config.c3 = {
-				install_info = {
-					url = "https://github.com/c3lang/tree-sitter-c3",
-					files = { "src/parser.c", "src/scanner.c" },
-					branch = "main",
-				},
-				filetype = "c3",
-			}
 		end,
 	},
 
@@ -295,6 +231,7 @@ require("lazy").setup({
 	},
 
 	{ "windwp/nvim-autopairs", event = "InsertEnter", opts = {} },
+
 	{
 		"saghen/blink.cmp",
 		version = "1.*",
@@ -353,17 +290,13 @@ require("lazy").setup({
 					},
 				},
 			},
-
 			keymap = {
 				["<C-k>"] = { "show", "show_documentation", "hide_documentation" },
 				["<CR>"] = { "accept", "fallback" },
 
 				["<Up>"] = { "select_prev", "fallback" },
 				["<Down>"] = { "select_next", "fallback" },
-				["<C-p>"] = { "select_prev", "fallback" },
-				["<C-n>"] = { "select_next", "fallback" },
-				["<C-up>"] = { "scroll_documentation_up", "fallback" },
-				["<C-down>"] = { "scroll_documentation_down", "fallback" },
+				["<C-n>"] = { "show", "select_next", "fallback" },
 			},
 
 			signature = {
@@ -371,15 +304,13 @@ require("lazy").setup({
 			},
 
 			sources = {
-				default = { "lsp", "path", "snippets", "buffer" },
+				default = { "cmdline", "lsp", "path", "snippets", "buffer" },
 				providers = {
-					cmdline = {
-						enabled = function()
-							local cmdline = vim.fn.getcmdline()
-							return not (cmdline:sub(1, 1) == "!" or cmdline:sub(1, 7) == "Compile")
-						end,
-					},
+                    cmdline = {
+                        max_items = 10,
+                    },
 					lsp = {
+                        max_items = 10,
 						min_keyword_length = 0,
 						score_offset = 0,
 					},
@@ -397,6 +328,7 @@ require("lazy").setup({
 			},
 		},
 	},
+
 	{
 		"ibhagwan/fzf-lua",
 		dependencies = { "nvim-tree/nvim-web-devicons" },
@@ -408,6 +340,7 @@ require("lazy").setup({
 			vim.keymap.set("n", "<leader>fb", require("fzf-lua").buffers)
 		end,
 	},
+
 	{
 		"Vonr/align.nvim",
 		branch = "v2",
@@ -421,6 +354,7 @@ require("lazy").setup({
 			end, { noremap = true, silent = true })
 		end,
 	},
+
 	{
 		"stevearc/oil.nvim",
 		dependencies = { "nvim-tree/nvim-web-devicons" },
@@ -429,6 +363,7 @@ require("lazy").setup({
 			vim.keymap.set("n", "<leader>e", ":Oil<CR>")
 		end,
 	},
+
 	{
 		"TimUntersberger/neogit",
 		dependencies = "nvim-lua/plenary.nvim",
@@ -437,6 +372,7 @@ require("lazy").setup({
 			vim.keymap.set("n", "<leader>ll", ":Neogit<CR>")
 		end,
 	},
+
 	{
 		"Exafunction/windsurf.nvim",
 		dependencies = { "nvim-lua/plenary.nvim" },
@@ -475,23 +411,24 @@ lsp.config("serve_d", {
 })
 lsp.enable("serve_d")
 
-lsp.config("zls", { settings = { zls = { zig_lib_path = vim.loop.os_homedir() .. "/.local/bin/zig/lib/" } } })
+lsp.config("zls", { settings = { zls = { zig_lib_path = "/opt/zig/lib/" } } })
 lsp.enable("zls")
 
-lsp.config("gopls", {
-	cmd = { "gopls" },
-	settings = {
-		gopls = {
-			usePlaceholders = true,
-			completeUnimported = true,
-			semanticTokens = true,
-			analyses = { unusedparams = true },
-			staticcheck = true,
-			gofumpt = true,
-		},
-	},
-})
-lsp.enable("gopls")
+-- lsp.config("gopls", {
+-- 	cmd = { "gopls" },
+-- 	settings = {
+-- 		gopls = {
+-- 			usePlaceholders = true,
+-- 			completeUnimported = true,
+-- 			semanticTokens = true,
+-- 			analyses = { unusedparams = true },
+-- 			staticcheck = true,
+-- 			gofumpt = true,
+-- 		},
+-- 	},
+-- })
+-- lsp.enable("gopls")
+
 
 -- KEYMAPS
 local opts = { noremap = true, silent = true }
@@ -507,9 +444,9 @@ vim.keymap.set("n", "<leader>s", ":split<CR>")
 vim.keymap.set("n", "<Tab>", ":bnext<CR>")
 vim.keymap.set("n", "<leader>t", ":tabnew<CR>")
 vim.keymap.set("n", "<leader>x", ":tabclose<CR>")
-vim.keymap.set("n", "<leader>j", ":tabprevious<CR>")
-vim.keymap.set("n", "<leader>k", ":tabnext<CR>")
+vim.keymap.set("n", "<leader>j", ":tabnext<CR>")
 vim.keymap.set("n", "<C-j>", "<C-w>w")
+
 vim.keymap.set("n", "<leader>i", function()
 	lsp.inlay_hint.enable(not lsp.inlay_hint.is_enabled())
 end, { desc = "Toggle Inlay Hints" })
@@ -540,12 +477,12 @@ vim.api.nvim_create_autocmd("LspAttach", {
 		k("n", "gi", lsp.implementation, opts)
 		k("n", "gr", lsp.references, opts)
 		k("n", "K", lsp.hover, opts)
-		k("n", "<C-k>", lsp.signature_help, opts)
+		k("n", "<leader>K", lsp.signature_help, opts)
 		k("n", "<leader>rn", lsp.rename, opts)
 		k({ "n", "v" }, "<leader>ca", lsp.code_action, opts)
 		k("n", "[d", vim.diagnostic.goto_prev, opts)
 		k("n", "]d", vim.diagnostic.goto_next, opts)
-		k("n", "<leader>K", vim.diagnostic.open_float, opts)
+		k("n", "<C-k>", vim.diagnostic.open_float, opts)
 	end,
 })
 
