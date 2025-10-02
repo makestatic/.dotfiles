@@ -102,5 +102,4 @@ SpacesInCStyleCastParentheses: false
 SpacesInParentheses: false
 SpacesInSquareBrackets: false
 TabWidth: 8
-# UseTab: Always
-UseTab: Never
+UseTab: Always

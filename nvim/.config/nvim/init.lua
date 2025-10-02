@@ -1,5 +1,5 @@
 vim.g.mapleader = " "
-vim.wo.signcolumn = "yes:1"
+vim.wo.signcolumn = "auto"
 vim.opt.mouse = "a"
 vim.opt.ignorecase = true
 vim.opt.smartcase = true
@@ -9,7 +9,7 @@ vim.opt.wrap = true
 vim.opt.tabstop = 4
 vim.opt.softtabstop = 4
 vim.opt.shiftwidth = 4
-vim.opt.expandtab = true
+vim.opt.expandtab = false
 vim.opt.autoindent = true
 vim.opt.undofile = true
 vim.opt.undodir = vim.fn.stdpath("data") .. "/undodir"
@@ -33,13 +33,10 @@ vim.keymap.set("n", "<leader>dv", function()
 	vim.diagnostic.config({ virtual_lines = not vim.diagnostic.config().virtual_lines })
 end)
 
-local signs = { Error = " ", Warn = " ", Info = " ", Hint = " " }
+local signs = { Error = "🟥", Warn = "🟨", Info = "🟧", Hint = "🟩" }
 for type, icon in pairs(signs) do
 	vim.fn.sign_define("DiagnosticSign" .. type, { text = icon, texthl = "DiagnosticSign" .. type, numhl = "" })
 end
-
-vim.fn.sign_define("DapBreakpoint", { text = "🟥", texthl = "", linehl = "", numhl = "" })
-vim.fn.sign_define("DapStopped", { text = "▶️", texthl = "", linehl = "", numhl = "" })
 
 local lazypath = vim.fn.stdpath("data") .. "/lazy/lazy.nvim"
 if not vim.uv.fs_stat(lazypath) then
@@ -80,19 +77,13 @@ require("lazy").setup({
 
 				sections = {
 					lualine_a = { "mode" },
-					lualine_b = { "branch" },
 					lualine_c = { "filename" },
 					lualine_x = {
 						function()
-							local encoding = vim.o.fileencoding
-							if encoding == "" then
-								return vim.bo.fileformat .. " :: " .. vim.bo.filetype
-							else
-								return encoding .. " :: " .. vim.bo.fileformat .. " :: " .. vim.bo.filetype
-							end
+							return vim.o.fileencoding .. " :: " .. vim.bo.filetype
 						end,
 					},
-					lualine_y = { "progress" },
+					lualine_y = { "lsp", "progress" },
 					lualine_z = { "location" },
 				},
 			})
@@ -111,7 +102,7 @@ require("lazy").setup({
 			set({ "n", "x" }, "<C-S-Down>", function()
 				mc.lineAddCursor(1)
 			end)
-			set({ "n", "x" }, "<c-l>", mc.toggleCursor)
+			set({ "i", "n", "x" }, "<C-l>", '<Esc>:lua require("multicursor-nvim").toggleCursor()<CR><CR>')
 			mc.addKeymapLayer(function(layerSet)
 				layerSet({ "n", "x" }, "<left>", mc.prevCursor)
 				layerSet({ "n", "x" }, "<right>", mc.nextCursor)
@@ -306,11 +297,11 @@ require("lazy").setup({
 			sources = {
 				default = { "cmdline", "lsp", "path", "snippets", "buffer" },
 				providers = {
-                    cmdline = {
-                        max_items = 10,
-                    },
+					cmdline = {
+						max_items = 10,
+					},
 					lsp = {
-                        max_items = 10,
+						max_items = 10,
 						min_keyword_length = 0,
 						score_offset = 0,
 					},
@@ -413,22 +404,6 @@ lsp.enable("serve_d")
 
 lsp.config("zls", { settings = { zls = { zig_lib_path = "/opt/zig/lib/" } } })
 lsp.enable("zls")
-
--- lsp.config("gopls", {
--- 	cmd = { "gopls" },
--- 	settings = {
--- 		gopls = {
--- 			usePlaceholders = true,
--- 			completeUnimported = true,
--- 			semanticTokens = true,
--- 			analyses = { unusedparams = true },
--- 			staticcheck = true,
--- 			gofumpt = true,
--- 		},
--- 	},
--- })
--- lsp.enable("gopls")
-
 
 -- KEYMAPS
 local opts = { noremap = true, silent = true }

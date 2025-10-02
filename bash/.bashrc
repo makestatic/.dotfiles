@@ -1,5 +1,3 @@
-# PS1='\n\e[34m$PWD\e[0m * '
-
 alias v="nvim"
 alias t="tmux"
 alias q="exit"
@@ -20,7 +18,6 @@ alias ln='ln -i'
 alias du='du -ch'
 alias emacs='emacs -nw'
 
-# Local bins
 export OPT="/opt/"
 export PATH="$OPT:$PATH"
 export BUN_INSTALL="$OPT/bun"

@@ -1,6 +1,6 @@
 BasedOnStyle: Mozilla
 IndentWidth: 4
 TabWidth: 4
-UseTab: Never
+UseTab: Always
 AlwaysBreakAfterReturnType: None
 AlwaysBreakAfterDefinitionReturnType: None
