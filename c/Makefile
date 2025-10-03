@@ -1,73 +1,117 @@
-BUILD_DIR = build
-OBJ_DIR   = $(BUILD_DIR)/obj
-BIN_DIR   = $(BUILD_DIR)/bin
-EXE      = $(BIN_DIR)/program
+EXE       := program
+SRC_DIRS  := src test include
+BUILD_DIR := build
+BIN_DIR   := $(BUILD_DIR)/out
+ARGS      ?=
 
-CC       = cc
-CXX      = c++
+CC        := clang
+CXX       := clang++
+STD_C     := gnu17
+STD_CPP   := gnu++17
 
-DEBUG_FLAGS   = -Wall -Wextra -Wpedantic -O0 -ggdb3
-RELEASE_FLAGS = -O2 -flto -march=native -DNDEBUG -fvisibility=hidden
+BASE_FLAGS := -Wall -Wextra -Wpedantic -MMD -MP
 
-CFLAGS   = $(DEBUG_FLAGS)
-CXXFLAGS = $(DEBUG_FLAGS)
-CPPFLAGS = -MMD -MP
+OPT_DBG   := -O0 -ggdb3 -fstack-protector-strong -fno-omit-frame-pointer
+OPT_REL   := -O3 -flto -fstack-protector-strong -march=native -mtune=native -DNDEBUG
 
-LDFLAGS         =               # debug default
-RELEASE_LDFLAGS = -flto -s
-LDLIBS          =
+CFLAGS_DBG   := $(BASE_FLAGS) $(OPT_DBG) -std=$(STD_C)
+CXXFLAGS_DBG := $(BASE_FLAGS) $(OPT_DBG) -std=$(STD_CPP)
+CFLAGS_REL   := $(BASE_FLAGS) $(OPT_REL) -std=$(STD_C)
+CXXFLAGS_REL := $(BASE_FLAGS) $(OPT_REL) -std=$(STD_CPP)
 
-DIRS := source
+LIBS        :=
+LDFLAGS_DBG :=
+LDFLAGS_REL := -flto -s
 
-# recursive source finder in $(DIRS)
-rwildcard = $(foreach d,$(wildcard $1*),$(call rwildcard,$d/,$2) $(filter $(subst *,%,$2),$d))
-SRC := $(foreach d,$(DIRS),$(call rwildcard,$d,*.c *.cc *.cpp))
+SRCS := $(shell find $(SRC_DIRS) -type f \( -name '*.c' -o -name '*.cc' -o -name '*.cpp' \))
+INCS := $(addprefix -I,$(shell find $(SRC_DIRS) -type d))
 
-# mirror structure in build/obj
-OBJ := $(patsubst %, $(OBJ_DIR)/%, $(SRC))
-OBJ := $(OBJ:%.c=%.o)
-OBJ := $(OBJ:%.cc=%.o)
-OBJ := $(OBJ:%.cpp=%.o)
-DEP := $(OBJ:.o=.d)
+DBG_OBJS := $(SRCS:%.c=$(BUILD_DIR)/dbg/%.o)
+DBG_OBJS := $(DBG_OBJS:%.cc=$(BUILD_DIR)/dbg/%.o)
+DBG_OBJS := $(DBG_OBJS:%.cpp=$(BUILD_DIR)/dbg/%.o)
 
-GREEN  = \033[0;32m
-RESET  = \033[0m
+REL_OBJS := $(SRCS:%.c=$(BUILD_DIR)/rel/%.o)
+REL_OBJS := $(REL_OBJS:%.cc=$(BUILD_DIR)/rel/%.o)
+REL_OBJS := $(REL_OBJS:%.cpp=$(BUILD_DIR)/rel/%.o)
 
-all: $(EXE)
+DEPS_DBG := $(DBG_OBJS:.o=.d)
+DEPS_REL := $(REL_OBJS:.o=.d)
 
-release: CFLAGS=$(RELEASE_FLAGS)
-release: CXXFLAGS=$(RELEASE_FLAGS)
-release: LDFLAGS=$(RELEASE_LDFLAGS)
-release: clean $(EXE)
+BIN_DBG := $(BIN_DIR)/d$(EXE)
+BIN_REL := $(BIN_DIR)/$(EXE)
 
-$(EXE): $(OBJ)
-	@mkdir -p $(dir $@)
-	@echo "$(GREEN)[LINK] $@$(RESET)"
-	$(CXX) $(OBJ) -o $@ $(LDFLAGS) $(LDLIBS)
+.DEFAULT_GOAL := debug
+.PHONY: debug release run clean compile_db install uninstall
 
-# compile rules
-$(OBJ_DIR)/%.o: %.c
-	@mkdir -p $(dir $@)
-	@echo "$(GREEN)[CC] $<$(RESET)"
-	$(CC) $(CFLAGS) $(CPPFLAGS) -c $< -o $@
+debug: $(BIN_DBG)
+release: $(BIN_REL)
 
-$(OBJ_DIR)/%.o: %.cc
-$(OBJ_DIR)/%.o: %.cpp
-	@mkdir -p $(dir $@)
-	@echo "$(GREEN)[CXX] $<$(RESET)"
-	$(CXX) $(CXXFLAGS) $(CPPFLAGS) -c $< -o $@
+GREEN  := \033[0;32m
+YELLOW := \033[1;33m
+RED    := \033[0;31m
+RESET  := \033[0m
+
+run: $(BIN_DBG)
+	@./$< $(ARGS)
+
+compile_db:
+	@echo "$(YELLOW)[BEAR] generating compile_commands.json$(RESET)"
+	@bear -- make -B
 
 clean:
-	@echo "$(GREEN)[CLEAN]$(RESET)"
+	@echo "$(RED)[CLEAN] nuking$(RESET)"
 	rm -rf $(BUILD_DIR)
 
-run: all
-	@echo "$(GREEN)[RUN] $(EXE)$(RESET)"
-	$(EXE)
+install: $(BIN_REL)
+	@echo "$(GREEN)[INSTALL]$(RESET)"
+	cp $(BIN_REL) /usr/local/bin/$(EXE)
 
--include $(DEP)
+uninstall:
+	@echo "$(RED)[UNINSTALL]$(RESET)"
+	rm -f /usr/local/bin/$(EXE)
 
-# parallel builds by default
-ifeq ($(filter -j%,$(MAKEFLAGS)),)
-  MAKEFLAGS += -j$(shell nproc)
-endif
+$(BUILD_DIR)/dbg/%.o: %.c
+	@mkdir -p $(@D)
+	@echo "$(YELLOW)[CC] $<$(RESET)"
+	$(CC) $(CFLAGS_DBG) $(INCS) -c $< -o $@
+
+$(BUILD_DIR)/dbg/%.o: %.cc
+	@mkdir -p $(@D)
+	@echo "$(YELLOW)[CXX] $<$(RESET)"
+	$(CXX) $(CXXFLAGS_DBG) $(INCS) -c $< -o $@
+
+$(BUILD_DIR)/dbg/%.o: %.cpp
+	@mkdir -p $(@D)
+	@echo "$(YELLOW)[CXX] $<$(RESET)"
+	$(CXX) $(CXXFLAGS_DBG) $(INCS) -c $< -o $@
+
+$(BUILD_DIR)/rel/%.o: %.c
+	@mkdir -p $(@D)
+	@echo "$(YELLOW)[CC] $<$(RESET)"
+	$(CC) $(CFLAGS_REL) $(INCS) -c $< -o $@
+
+$(BUILD_DIR)/rel/%.o: %.cc
+	@mkdir -p $(@D)
+	@echo "$(YELLOW)[CXX] $<$(RESET)"
+	$(CXX) $(CXXFLAGS_REL) $(INCS) -c $< -o $@
+
+$(BUILD_DIR)/rel/%.o: %.cpp
+	@mkdir -p $(@D)
+	@echo "$(YELLOW)[CXX] $<$(RESET)"
+	$(CXX) $(CXXFLAGS_REL) $(INCS) -c $< -o $@
+
+$(BIN_DBG): $(DBG_OBJS)
+	@mkdir -p $(@D)
+	@echo "$(GREEN)[LD] $@$(RESET)"
+	$(CXX) $^ -o $@ $(LIBS) $(LDFLAGS_DBG)
+
+$(BIN_REL): $(REL_OBJS)
+	@mkdir -p $(@D)
+	@echo "$(GREEN)[LD] $@$(RESET)"
+	$(CXX) $^ -o $@ $(LIBS) $(LDFLAGS_REL)
+
+-include $(DEPS_DBG)
+-include $(DEPS_REL)
+
+# use all cores by default
+MAKEFLAGS += -j$(shell nproc)
