@@ -25,9 +25,8 @@ vim.opt.splitright = true
 vim.opt.termguicolors = true
 vim.opt.scrolloff = 999
 vim.opt.sidescrolloff = 8
-vim.o.background = "dark"
-vim.o.guicursor = ""
-vim.cmd([[colorscheme gruber-darker]])
+vim.opt.background = "light"
+vim.opt.number = true
 
 vim.keymap.set("n", "<leader>dv", function()
 	vim.diagnostic.config({ virtual_lines = not vim.diagnostic.config().virtual_lines })
@@ -57,8 +56,11 @@ require("lazy").setup({
 	{ "nyoom-engineering/oxocarbon.nvim" },
 	{ "CosecSecCot/cosec-twilight.nvim" },
 	{ "sainnhe/gruvbox-material" },
+	{ "Mofiqul/dracula.nvim" },
+	{ "yorickpeterse/nvim-grey" },
 	{ "rebelot/kanagawa.nvim" },
 	{ "phha/zenburn.nvim" },
+	{ "Mofiqul/vscode.nvim" },
 	{ "armannikoyan/rusty" },
 	{ "rktjmp/lush.nvim" },
 	{ "vague2k/vague.nvim", opts = { italic = false } },
@@ -460,5 +462,22 @@ vim.api.nvim_create_autocmd("LspAttach", {
 		k("n", "<C-k>", vim.diagnostic.open_float, opts)
 	end,
 })
+
+
+-- vim.cmd([[colorscheme dracula-soft]])
+-- vim.cmd([[colorscheme gruber-darker]])
+vim.cmd([[colorscheme grey]])
+vim.cmd [[
+  hi Cursor guifg=NONE guibg=Black
+  set guicursor=i-r-o-n-v-c:block-Cursor
+]]
+-- vim.cmd [[
+--   hi Comment guifg=#00ff80
+--   hi Number guifg=#ffaf5f
+--   hi Constant guifg=#ffaf5f
+--   hi Identifier guifg=#5fd7ff
+--   hi Statement guifg=#5fd7ff
+--   hi Function guifg=#5fd7ff
+-- ]]
 
 vim.keymap.set("n", "<leader><leader>", ":source ~/.config/nvim/init.lua<CR>")

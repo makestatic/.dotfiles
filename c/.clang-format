@@ -2,5 +2,8 @@ BasedOnStyle: Mozilla
 IndentWidth: 4
 TabWidth: 4
 UseTab: Always
+AllowShortIfStatementsOnASingleLine: Always
+AllowShortLoopsOnASingleLine: true
+AllowShortBlocksOnASingleLine: false
 AlwaysBreakAfterReturnType: None
 AlwaysBreakAfterDefinitionReturnType: None

@@ -16,17 +16,17 @@ alias rm='rm -rf'
 alias ls='ls -a --color=auto'
 alias ln='ln -i'
 alias du='du -ch'
-alias emacs='emacs -nw'
 
 export OPT="/opt/"
 export PATH="$OPT:$PATH"
-export BUN_INSTALL="$OPT/bun"
-export PATH="$BUN_INSTALL/bin:$PATH"
 export PATH="$OPT/zig:$PATH"
+export PATH="$OPT/rust:$PATH"
 export PATH="$OPT/c3:$PATH"
 export PATH="$OPT/ldc/bin:$PATH"
 export PATH="$OPT/go/bin:$PATH"
 export PATH="$OPT/node/bin:$PATH"
+export BUN_INSTALL="$OPT/bun"
+export PATH="$BUN_INSTALL/bin:$PATH"
 
 alias tmux-sessionizer='~/tmux-sessionizer.sh'
 bind -x '"\C-f": tmux-sessionizer'

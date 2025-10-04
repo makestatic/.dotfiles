@@ -2,9 +2,9 @@
 
 # Directories to search in
 search_dirs=(
-    "$HOME/github"
-    "$HOME/programming"
-    "$HOME/personal"
+    "$HOME/Github"
+    "$HOME/Prog"
+    "$HOME/makestatic"
 )
 
 existing_dirs=()

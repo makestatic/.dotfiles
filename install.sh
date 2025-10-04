@@ -8,5 +8,3 @@ for dir in */ ; do
     echo "Stowing $dir..."
     stow "$dir"
 done
-
-echo "All directories stowed successfully."
