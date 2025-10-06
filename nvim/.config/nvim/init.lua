@@ -25,7 +25,7 @@ vim.opt.splitright = true
 vim.opt.termguicolors = true
 vim.opt.scrolloff = 999
 vim.opt.sidescrolloff = 8
-vim.opt.background = "light"
+vim.opt.background = "dark"
 vim.opt.number = true
 
 vim.keymap.set("n", "<leader>dv", function()
@@ -53,12 +53,15 @@ vim.opt.rtp:prepend(lazypath)
 require("lazy").setup({
 	{ "echasnovski/mini.surround", version = "*", opts = {} },
 	{ "mathofprimes/nightvision-nvim" },
+	{ "skywind3000/vim-quickui" },
+	{ "letorbi/vim-colors-modern-borland" },
 	{ "nyoom-engineering/oxocarbon.nvim" },
 	{ "CosecSecCot/cosec-twilight.nvim" },
 	{ "sainnhe/gruvbox-material" },
 	{ "Mofiqul/dracula.nvim" },
 	{ "yorickpeterse/nvim-grey" },
 	{ "rebelot/kanagawa.nvim" },
+	{ "makestatic/oblique.nvim" },
 	{ "phha/zenburn.nvim" },
 	{ "Mofiqul/vscode.nvim" },
 	{ "armannikoyan/rusty" },
@@ -331,6 +334,7 @@ require("lazy").setup({
 			vim.keymap.set("n", "<leader>fq", require("fzf-lua").lsp_document_diagnostics)
 			vim.keymap.set("n", "<leader>fg", require("fzf-lua").live_grep)
 			vim.keymap.set("n", "<leader>fb", require("fzf-lua").buffers)
+			vim.keymap.set("n", "<leader>man", require("fzf-lua").manpages)
 		end,
 	},
 
@@ -463,21 +467,15 @@ vim.api.nvim_create_autocmd("LspAttach", {
 	end,
 })
 
-
 -- vim.cmd([[colorscheme dracula-soft]])
--- vim.cmd([[colorscheme gruber-darker]])
-vim.cmd([[colorscheme grey]])
-vim.cmd [[
-  hi Cursor guifg=NONE guibg=Black
-  set guicursor=i-r-o-n-v-c:block-Cursor
-]]
+vim.cmd([[colorscheme gruber-darker]])
+-- vim.opt.background = "light"
+-- vim.cmd([[colorscheme grey]])
+-- vim.cmd([[colorscheme vscode]])
+-- vim.cmd("colorscheme oblique")
 -- vim.cmd [[
---   hi Comment guifg=#00ff80
---   hi Number guifg=#ffaf5f
---   hi Constant guifg=#ffaf5f
---   hi Identifier guifg=#5fd7ff
---   hi Statement guifg=#5fd7ff
---   hi Function guifg=#5fd7ff
+--   hi Cursor guifg=NONE guibg=Black
+--   set guicursor=i-r-o-n-v-c:block-Cursor
 -- ]]
 
 vim.keymap.set("n", "<leader><leader>", ":source ~/.config/nvim/init.lua<CR>")
