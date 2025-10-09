@@ -1,34 +1,27 @@
-alias v="nvim"
-alias t="tmux"
-alias q="exit"
-alias c="clear"
-alias mount='mount |column -t'
-alias now='date +"%T"'
-alias nowtime=now
-alias nowdate='date +"%d-%m-%Y"'
-alias ports='netstat -tulanp'
-alias wget='wget -c'
-alias path='echo -e ${PATH//:/\\n}'
+alias v='nvim'
+alias t='tmux'
+alias q='exit'
+alias c='clear'
+alias ls='ls -a --color=auto'
 alias mkdir='mkdir -pv'
 alias mv='mv -i'
 alias cp='cp -i'
 alias rm='rm -rf'
-alias ls='ls -a --color=auto'
 alias ln='ln -i'
 alias du='du -ch'
-
-export OPT="/opt/"
-export PATH="$OPT:$PATH"
-export PATH="$OPT/zig:$PATH"
-export PATH="$OPT/rust:$PATH"
-export PATH="$OPT/c3:$PATH"
-export PATH="$OPT/ldc/bin:$PATH"
-export PATH="$OPT/go/bin:$PATH"
-export PATH="$OPT/node/bin:$PATH"
-export BUN_INSTALL="$OPT/bun"
-export PATH="$BUN_INSTALL/bin:$PATH"
-
+alias mount='mount | column -t'
+alias now='date "+%T"'
+alias datef='date "+%d-%m-%Y"'
+alias ports='netstat -tulanp'
+alias wget='wget -c'
+alias path='echo -e ${PATH//:/\\n}'
 alias tmux-sessionizer='~/tmux-sessionizer.sh'
-bind -x '"\C-f": tmux-sessionizer'
 
+OPT=/opt
+for d in gcc-15 clang-21 zig rust c3 ldc/bin go/bin node/bin; do
+    [ -d "$OPT/$d" ] && PATH="$OPT/$d:$PATH"
+done
+export PATH
+
+bind -x '"\C-f": tmux-sessionizer'
 eval "$(starship init bash)"

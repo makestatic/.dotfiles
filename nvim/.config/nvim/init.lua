@@ -27,12 +27,13 @@ vim.opt.scrolloff = 999
 vim.opt.sidescrolloff = 8
 vim.opt.background = "dark"
 vim.opt.number = true
+vim.opt.guicursor = ""
 
 vim.keymap.set("n", "<leader>dv", function()
 	vim.diagnostic.config({ virtual_lines = not vim.diagnostic.config().virtual_lines })
 end)
 
-local signs = { Error = "🟥", Warn = "🟨", Info = "🟧", Hint = "🟩" }
+local signs = { Error = "E", Warn = "W", Info = "I", Hint = "H" }
 for type, icon in pairs(signs) do
 	vim.fn.sign_define("DiagnosticSign" .. type, { text = icon, texthl = "DiagnosticSign" .. type, numhl = "" })
 end

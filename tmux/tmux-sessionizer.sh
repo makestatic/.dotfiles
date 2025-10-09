@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
 
-# Directories to search in
+# directories to search in
 search_dirs=(
-    "$HOME/Github"
+    "$HOME/github"
     "$HOME/Prog"
     "$HOME/makestatic"
 )
