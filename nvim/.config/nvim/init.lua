@@ -433,6 +433,16 @@ vim.keymap.set("n", "<leader>i", function()
 	lsp.inlay_hint.enable(not lsp.inlay_hint.is_enabled())
 end, { desc = "Toggle Inlay Hints" })
 
+-- Neovide
+vim.keymap.set('n', '<C-=>', '<nop>', { noremap = true })
+vim.keymap.set('n', '<C-->', '<nop>', { noremap = true })
+vim.keymap.set('n', '<C-=>', function()
+  vim.g.neovide_scale_factor = vim.g.neovide_scale_factor + 0.1
+end, opts)
+vim.keymap.set('n', '<C-->', function()
+  vim.g.neovide_scale_factor = vim.g.neovide_scale_factor - 0.1
+end, opts)
+
 -- AUTOCMDS
 vim.api.nvim_create_autocmd("TextYankPost", {
 	callback = function()

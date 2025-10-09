@@ -1,7 +1,8 @@
-set $mod Mod1
+set $mod Mod4
 
 exec --no-startup-id xrdb ~/.Xresources
 exec_always --no-startup-id setxkbmap us
+exec_always --no-startup-id setxkbmap -option altwin:swap_alt_win
 
 font pango:RobotoMono Nerd Font 10
 
