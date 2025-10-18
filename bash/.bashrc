@@ -1,3 +1,19 @@
+if ! pgrep -x emacs >/dev/null; then
+    emacs --daemon >/dev/null 2>&1 &
+fi
+
+es() {
+    if [ $# -eq 0 ]; then
+        emacsclient -c -a ""
+    else
+        emacsclient -c -a "" "$@"
+    fi
+}
+
+export EDITOR="emacsclient -c -a ''"
+export VISUAL="$EDITOR"
+
+alias e="es"
 alias v='nvim'
 alias t='tmux'
 alias q='exit'
@@ -47,6 +63,3 @@ if [ -n "$PS1" ] && [ -f ~/.bashrc ] && [ "$BASH_SOURCE" != "$HOME/.bashrc" ]; t
         ;;
     esac
 fi
-
-export XDG_RUNTIME_DIR='/tmp/runtime-root'
-
