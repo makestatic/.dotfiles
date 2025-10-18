@@ -47,3 +47,6 @@ if [ -n "$PS1" ] && [ -f ~/.bashrc ] && [ "$BASH_SOURCE" != "$HOME/.bashrc" ]; t
         ;;
     esac
 fi
+
+export XDG_RUNTIME_DIR='/tmp/runtime-root'
+
