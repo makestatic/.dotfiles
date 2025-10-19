@@ -10,6 +10,7 @@
       tab-width 4
       fill-column 80
       select-enable-clipboard t)
+
 (tool-bar-mode -1)
 (menu-bar-mode -1)
 (scroll-bar-mode -1)
@@ -18,25 +19,28 @@
 (xterm-mouse-mode 1)
 (add-to-list 'default-frame-alist '(font . "Roboto Mono Nerd Font-11:weight=medium"))
 
-(use-package gruber-darker-theme
-  :ensure t
-  :config (load-theme 'gruber-darker t))
-
 (require 'package)
 (setq package-archives '(("gnu" . "https://elpa.gnu.org/packages/")
                          ("melpa" . "https://melpa.org/packages/")))
 (package-initialize)
-(unless (package-installed-p 'use-package) (package-install 'use-package))
+(unless (package-installed-p 'use-package)
+  (package-install 'use-package))
 (require 'use-package)
-(setq use-package-always-ensure t use-package-verbose t)
+(setq use-package-always-ensure t
+      use-package-verbose t)
+
+(use-package gruber-darker-theme
+  :config (load-theme 'gruber-darker t))
 
 (use-package magit
   :bind (("C-x g" . magit-status)))
 
 (use-package evil
-  :init (setq evil-want-integration t
-              evil-want-keybinding nil)
-  :config (evil-mode 1))
+  :init
+  (setq evil-want-integration t
+        evil-want-keybinding nil)
+  :config
+  (evil-mode 1))
 
 (use-package evil-collection
   :after evil
@@ -93,12 +97,15 @@
                 (eglot-inlay-hints-mode -1))
               (setq-local completion-at-point-functions
                           (append completion-at-point-functions
-                                  (list #'eglot-completion-at-point))))))
+                                  (list #'eglot-completion-at-point)))))
 
   ;; server programs
-  (add-to-list 'eglot-server-programs '(python-mode . ("pyright-langserver" "--stdio")))
-  (add-to-list 'eglot-server-programs '(simpc-mode . ("clangd")))
-  (add-to-list 'eglot-server-programs '(zig-mode . ("zls")))
+  (add-to-list 'eglot-server-programs
+               '(python-mode . ("pyright-langserver" "--stdio")))
+  (add-to-list 'eglot-server-programs
+               '(simpc-mode . ("clangd")))
+  (add-to-list 'eglot-server-programs
+               '(zig-mode . ("zls")))
 
   :bind (:map eglot-mode-map
               ("C-c l d" . xref-find-definitions)
@@ -110,20 +117,24 @@
 
 (use-package yasnippet
   :config (yas-global-mode 1))
-(use-package yasnippet-snippets :after yasnippet)
+
+(use-package yasnippet-snippets
+  :after yasnippet)
 
 (use-package vertico
   :init (vertico-mode 1))
+
 (use-package orderless
-  :custom (completion-styles '(orderless basic))
-          (completion-category-overrides '((file (styles partial-completion))))
-          (completion-category-defaults nil)
-          (completion-pcm-leading-wildcard t))
+  :custom
+  (completion-styles '(orderless basic))
+  (completion-category-overrides '((file (styles partial-completion))))
+  (completion-category-defaults nil)
+  (completion-pcm-leading-wildcard t))
 
-
-; stolen from Mr. zozin dotfiles <https://github.com/rexim/dotfiles>
+;; stolen from Mr. zozin dotfiles <https://github.com/rexim/dotfiles>
 (require 'simpc-mode)
-(add-to-list 'auto-mode-alist '("\\.[hc]\\(pp\\)?\\|\\.\\(cc\\|hh\\|C\\)" . simpc-mode))
+(add-to-list 'auto-mode-alist
+             '("\\.\\(c\\|cc\\|cpp\\|h\\|hh\\|hpp\\)\\'" . simpc-mode))
 
 (global-set-key (kbd "C-c e") 'dired-jump)
 (global-set-key (kbd "C-c v") 'split-window-right)
@@ -132,13 +143,16 @@
 (global-set-key (kbd "C-c cn") 'compile-goto-error)
 (global-set-key (kbd "C-c ]") 'next-buffer)
 (global-set-key (kbd "C-c [") 'previous-buffer)
-(global-set-key (kbd "C-c r") (lambda () (interactive) (load-file "~/.emacs")))
-(global-set-key (kbd "C-=") (lambda () (interactive)
-                              (set-face-attribute 'default nil
-                                                  :height (+ 10 (face-attribute 'default :height)))))
-(global-set-key (kbd "C--") (lambda () (interactive)
-                              (set-face-attribute 'default nil
-                                                  :height (- (face-attribute 'default :height) 10))))
+(global-set-key (kbd "C-c r")
+                (lambda () (interactive) (load-file "~/.emacs")))
+(global-set-key (kbd "C-=")
+                (lambda () (interactive)
+                  (set-face-attribute 'default nil
+                                      :height (+ 10 (face-attribute 'default :height)))))
+(global-set-key (kbd "C--")
+                (lambda () (interactive)
+                  (set-face-attribute 'default nil
+                                      :height (- (face-attribute 'default :height) 10))))
 
 (require 'ansi-color)
 (defun rc/compilation-filter-hook ()
@@ -146,5 +160,18 @@
 (add-hook 'compilation-filter-hook 'rc/compilation-filter-hook)
 
 (setq display-buffer-alist
-      '(("\\*\\(Man\\|WoMan\\).*\\*" (display-buffer-reuse-window display-buffer-below-selected)
+      '(("\\*\\(Man\\|WoMan\\).*\\*"
+         (display-buffer-reuse-window display-buffer-below-selected)
          (window-height . 0.4))))
+(custom-set-variables
+ ;; custom-set-variables was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ '(package-selected-packages nil))
+(custom-set-faces
+ ;; custom-set-faces was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ )

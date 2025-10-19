@@ -12,7 +12,7 @@ es() {
 
 export EDITOR="emacsclient -c -a ''"
 export VISUAL="$EDITOR"
-
+alias ke="emacsclient -e '(kill-emacs)'"
 alias e="es"
 alias v='nvim'
 alias t='tmux'
