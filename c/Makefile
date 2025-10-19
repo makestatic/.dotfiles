@@ -1,65 +1,90 @@
 ####################################################
-############## My Generic Makefile #################
 ######### Copyright (c) 2025 Ali Almalki ###########
 ############## <makestatic@github> #################
-##################### GPL-3 ########################
+##################### BSD-3 ########################
 ####################################################
+
 EXE       := program
-SRC_DIRS  := source util vendor include
+# src dirs including 'include dirs'
+SRC_DIRS  := source util vendor
 BUILD_DIR := build
 PREFIX    ?= /usr
 
-CC  := $(shell command -v clang 2>/dev/null || echo gcc)
-CXX := $(shell command -v clang++ 2>/dev/null || echo g++)
+CC  ?= gcc
+CXX ?= g++
 STD_C   ?= gnu17
-STD_CPP ?= gnu++17
+STD_CPP ?= gnu++17:
 
-CFLAGS   := -Wall -Wextra -Wpedantic -ggdb -O2 -MMD -MP -std=$(STD_C)
-CXXFLAGS := -Wall -Wextra -Wpedantic -ggdb -O2 -MMD -MP -std=$(STD_CPP)
-LDFLAGS  := 
+COMMON_FLAGS := -Wall -Wextra -Wpedantic -ggdb -O3 -MMD -MP
+CFLAGS       := $(COMMON_FLAGS) -std=$(STD_C)
+CXXFLAGS     := $(COMMON_FLAGS) -std=$(STD_CPP)
+LDFLAGS      := 
 
+# Pretty output colors
 GREEN    := \033[0;32m
 YELLOW   := \033[1;33m
 RED      := \033[0;31m
+BLUE     := \033[0;34m
 RESET    := \033[0m
 
-SRCS     := $(shell find $(SRC_DIRS) -type f \( -name '*.c' -o -name '*.cc' -o -name '*.cpp' \))
-OBJS     := $(SRCS:%=$(BUILD_DIR)/%.o)
-DEPS     := $(OBJS:.o=.d)
-BIN      := $(BUILD_DIR)/$(EXE)
+# Source and object files
+SRCS := $(shell find $(SRC_DIRS) -type f \( -name '*.c' -o -name '*.cc' -o -name '*.cpp' \))
+OBJS := $(SRCS:%=$(BUILD_DIR)/%.o)
+DEPS := $(OBJS:.o=.d)
+BIN  := $(BUILD_DIR)/$(EXE)
 
 .PHONY: all run install uninstall clean
 .DEFAULT_GOAL := all
 
+# Build the executable
 all: $(BIN)
 
+# Run target
 run: $(BIN)
-	@./$< $(ARGS)
+	@echo "$(GREEN)[run]$(RESET) $(EXE)"
+	@echo "./$(BIN) $(ARGS)"
+	@./$(BIN) $(ARGS)
 
+# Install
 install: $(BIN)
-	@echo "$(GREEN)[INSTALL]$(RESET)"
-	install -D -m755 $(BIN) $(PREFIX)/bin/$(EXE)
+	@echo "$(GREEN)[install]$(RESET) $(BIN) => $(PREFIX)/bin/$(EXE)"
+	@echo "install -D -m755 $(BIN) $(PREFIX)/bin/$(EXE)"
+	@install -D -m755 $(BIN) $(PREFIX)/bin/$(EXE)
 
+# Uninstall
 uninstall:
-	@echo "$(RED)[UNINSTALL]$(RESET)"
-	rm -f $(PREFIX)/bin/$(EXE)
+	@echo "$(RED)[uninstall]$(RESET) $(PREFIX)/bin/$(EXE)"
+	@echo "rm -f $(PREFIX)/bin/$(EXE)"
+	@rm -f $(PREFIX)/bin/$(EXE)
 
+# Clean
 clean:
-	@echo "$(RED)[CLEAN]$(RESET)"
-	rm -rf $(BUILD_DIR)
+	@echo "$(RED)[clean]$(RESET) deleting $(BUILD_DIR)"
+	@echo "rm -rf $(BUILD_DIR)"
+	@rm -rf $(BUILD_DIR)
 
+# Link the final executable
 $(BIN): $(OBJS)
 	@mkdir -p $(@D)
-	@echo "$(GREEN)[LD] $@$(RESET)"
-	$(CXX) $(LDFLAGS) $^ -o $@
+	@echo "$(BLUE)[LD]$(RESET) $(@F)"
+	@echo "$(CXX) $(LDFLAGS) $^ -o $@"
+	@$(CXX) $(LDFLAGS) $^ -o $@
 
+# Compile source files
 $(BUILD_DIR)/%.o: %
 	@mkdir -p $(@D)
-	@echo "$(YELLOW)[CC] $<$(RESET)"
-	$(if $(filter %.c,$<), \
-		$(CC) $(CFLAGS) -I$(SRC_DIRS) -c $< -o $@, \
-		$(CXX) $(CXXFLAGS) -I$(SRC_DIRS) -c $< -o $@)
+	@FILE_NAME=$(notdir $<); \
+	echo "$(YELLOW)[CC]$(RESET) $$FILE_NAME"; \
+	if echo "$<" | grep -qE '\.c$$'; then \
+		echo "$(CC) $(CFLAGS) -I$(SRC_DIRS) -c $< -o $@"; \
+		$(CC) $(CFLAGS) -I$(SRC_DIRS) -c $< -o $@; \
+	else \
+		echo "$(CXX) $(CXXFLAGS) -I$(SRC_DIRS) -c $< -o $@"; \
+		$(CXX) $(CXXFLAGS) -I$(SRC_DIRS) -c $< -o $@; \
+	fi
 
+# Include dependencies for incremental builds
 -include $(DEPS)
 
-MAKEFLAGS += -j$(shell nproc 2>/dev/null || echo 4)
+# Use all CPU cores if not fallback to 1 core
+MAKEFLAGS += -j$(shell nproc 2>/dev/null || echo 1)
