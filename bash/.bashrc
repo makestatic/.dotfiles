@@ -14,19 +14,18 @@ export EDITOR="emacsclient -c -a ''"
 export VISUAL="$EDITOR"
 alias ke="emacsclient -e '(kill-emacs)'"
 alias e="es"
-alias v='nvim'
+alias v="es"
 alias t='tmux'
 alias q='exit'
 alias c='clear'
 
 alias ls='ls -a --color=auto'
+alias ll='ls -la --color=auto'
 alias mkdir='mkdir -pv'
-alias mv='mv -i'
-alias cp='cp -i'
-alias rm='rm -rf' 
-alias ln='ln -i'
+alias mv='mv -iv'
+alias cp='cp -iv'
+alias rm='rm -rfv' 
 alias du='du -ch'
-alias mount='mount | column -t'
 
 alias now='date "+%T"'
 alias datef='date "+%d-%m-%Y"'

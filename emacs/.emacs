@@ -1,6 +1,6 @@
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;; emacs 28->29->30 at least ;;;
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;
+;;;  emacs 28:30   ;;;
+;;;;;;;;;;;;;;;;;;;;;;
 
 (add-to-list 'load-path "~/.emacs.local/")
 (setq inhibit-startup-screen t
@@ -29,9 +29,6 @@
 (setq use-package-always-ensure t
       use-package-verbose t)
 
-(use-package gruber-darker-theme
-  :config (load-theme 'gruber-darker t))
-
 (use-package magit
   :bind (("C-x g" . magit-status)))
 
@@ -40,7 +37,14 @@
   (setq evil-want-integration t
         evil-want-keybinding nil)
   :config
-  (evil-mode 1))
+  (evil-mode 1)
+  (setq evil-normal-state-cursor  '(box "#ffdd33")
+        evil-insert-state-cursor  '(box "#ffdd33")
+        evil-visual-state-cursor  '(box "#ffdd33")
+        evil-replace-state-cursor '(box "#ffdd33")
+        evil-operator-state-cursor '(box "#ffdd33"))
+  (set-default 'cursor-type 'box)
+  (set-face-background 'cursor "#ffdd33"))
 
 (use-package evil-collection
   :after evil
@@ -49,11 +53,10 @@
 
 (use-package undo-tree
   :config
-  (global-undo-tree-mode)
-  (setq undo-tree-auto-save-history t
-        undo-tree-history-directory-alist `(("." . ,(concat user-emacs-directory "undo"))))
-  :bind (("C-c z" . undo-tree-undo)
-         ("C-c C-z" . undo-tree-redo)))
+  (global-undo-tree-mode))
+  (setq undo-tree-history-directory-alist
+        `(("." . ,(expand-file-name "~/.emacs.undotree/"))))
+  (setq undo-tree-auto-save-history t)
 
 (use-package multiple-cursors
   :bind (("C->" . mc/mark-next-like-this)
@@ -163,12 +166,18 @@
       '(("\\*\\(Man\\|WoMan\\).*\\*"
          (display-buffer-reuse-window display-buffer-below-selected)
          (window-height . 0.4))))
+
+(use-package gruber-darker-theme
+  :config (load-theme 'gruber-darker t))
 (custom-set-variables
  ;; custom-set-variables was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
- '(package-selected-packages nil))
+ '(package-selected-packages
+   '(cape corfu evil-collection gruber-darker-theme magit
+	  multiple-cursors orderless smartparens undo-tree vertico
+	  yasnippet-snippets zig-mode)))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.

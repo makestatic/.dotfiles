@@ -2,7 +2,7 @@ set $mod Mod4
 
 exec --no-startup-id xrdb ~/.Xresources
 exec_always --no-startup-id setxkbmap us
-exec_always --no-startup-id setxkbmap -option altwin:swap_alt_win
+# exec --no-startup-id nitrogen --restore
 
 font pango:RobotoMono Nerd Font 10
 
