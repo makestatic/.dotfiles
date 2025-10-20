@@ -5,13 +5,14 @@
 ####################################################
 
 EXE       := program
-SRC_DIRS  := source vendor util
+SRC_DIRS  := src1 src2
 BUILD_DIR := build
 PREFIX    ?= /usr
 CC        := $(shell command -v clang 2>/dev/null || echo gcc)
 CXX       := $(shell command -v clang++ 2>/dev/null || echo g++)
 CFLAGS    := -Wall -Wextra -Wpedantic -ggdb -O3 -std=gnu17 -MMD -MP
 CXXFLAGS  := -Wall -Wextra -Wpedantic -ggdb -O3 -fno-exceptions -std=gnu++17 -MMD -MP
+LDFLAGS   :=                     
 
 SRCS      := $(shell find $(SRC_DIRS) -type f \( -name '*.c' -o -name '*.cpp' -o -name '*.cc' \))
 OBJS      := $(SRCS:%=$(BUILD_DIR)/%.o)
@@ -29,8 +30,8 @@ all: $(BIN)
 
 $(BIN): $(OBJS)
 	@mkdir -p $(@D)
-	@printf "$(GREEN)%s$(RESET)\n" "$(CXX) $^ -o $@"
-	@$(CXX) $^ -o $@
+	@printf "$(GREEN)%s$(RESET)\n" "$(CXX) $^ $(LDFLAGS) -o $@"
+	@$(CXX) $^ $(LDFLAGS) -o $@
 
 $(BUILD_DIR)/%.o: %
 	@mkdir -p $(@D)
@@ -43,13 +44,16 @@ $(BUILD_DIR)/%.o: %
 -include $(DEPS)
 
 install: $(BIN)
-	@printf "$(GREEN)%s$(RESET)\n" "install -D -m755 $(BIN) $(PREFIX)/bin/$(EXE)"
-	@install -D -m755 $(BIN) $(PREFIX)/bin/$(EXE)
+	@echo "$(GREEN)"
+	install -D -m755 $(BIN) $(PREFIX)/bin/$(EXE)
+	@echo "$(RESET)"
 
 uninstall:
-	@printf "$(RED)%s$(RESET)\n" "rm -f $(PREFIX)/bin/$(EXE)"
-	@rm -f $(PREFIX)/bin/$(EXE)
+	@echo "$(RED)"
+	rm -f $(PREFIX)/bin/$(EXE)
+	@echo "$(RESET)"
 
 clean:
-	@printf "$(RED)%s$(RESET)\n" "rm -rf $(BUILD_DIR)"
-	@rm -rf $(BUILD_DIR)
+	@echo "$(RED)"
+	rm -rf $(BUILD_DIR)
+	@echo "$(RESET)"
