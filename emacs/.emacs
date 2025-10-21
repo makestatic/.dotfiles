@@ -1,8 +1,5 @@
-;;;;;;;;;;;;;;;;;;;;;;
-;;;  emacs 28:30   ;;;
-;;;;;;;;;;;;;;;;;;;;;;
-
 (add-to-list 'load-path "~/.emacs.local/")
+
 (setq inhibit-startup-screen t
       make-backup-files nil
       auto-save-default nil
@@ -17,20 +14,25 @@
 (column-number-mode 1)
 (global-display-line-numbers-mode 1)
 (xterm-mouse-mode 1)
-(add-to-list 'default-frame-alist '(font . "Roboto Mono Nerd Font-11:weight=medium"))
+
+(add-to-list 'default-frame-alist '(font . "roboto mono nerd font-11:weight=medium"))
 
 (require 'package)
-(setq package-archives '(("gnu" . "https://elpa.gnu.org/packages/")
-                         ("melpa" . "https://melpa.org/packages/")))
+(setq package-archives
+      '(("gnu"   . "https://elpa.gnu.org/packages/")
+        ("melpa" . "https://melpa.org/packages/")))
 (package-initialize)
+
 (unless (package-installed-p 'use-package)
+  (package-refresh-contents)
   (package-install 'use-package))
 (require 'use-package)
 (setq use-package-always-ensure t
-      use-package-verbose t)
+      use-package-verbose nil)
 
 (use-package magit
   :bind (("C-x g" . magit-status)))
+(setq magit-auto-revert-mode nil)
 
 (use-package evil
   :init
@@ -48,15 +50,13 @@
 
 (use-package evil-collection
   :after evil
-  :config
-  (evil-collection-init))
+  :config (evil-collection-init))
 
 (use-package undo-tree
   :config
-  (global-undo-tree-mode))
-  (setq undo-tree-history-directory-alist
-        `(("." . ,(expand-file-name "~/.emacs.undotree/"))))
-  (setq undo-tree-auto-save-history t)
+  (setq undo-tree-auto-save-history t
+        undo-tree-history-directory-alist '(("." . "~/.emacs.d/undo")))
+  (global-undo-tree-mode 1))
 
 (use-package multiple-cursors
   :bind (("C->" . mc/mark-next-like-this)
@@ -68,15 +68,22 @@
   :hook (prog-mode . smartparens-mode)
   :config (smartparens-global-mode 1))
 
+(use-package vertico
+  :init (vertico-mode 1))
+
+(use-package orderless
+  :init
+  (setq completion-styles '(orderless basic)
+        completion-category-defaults nil
+        completion-category-overrides '((file (styles partial-completion)))))
+
 (use-package corfu
   :init
   (global-corfu-mode)
   :custom
-  (corfu-cycle t)
   (corfu-auto t)
-  (corfu-auto-delay 0.0)
+  (corfu-auto-delay 0.25)
   (corfu-auto-prefix 1)
-  (corfu-quit-at-boundary t)
   :bind (:map corfu-map
               ("C-n" . corfu-next)
               ("C-p" . corfu-previous)
@@ -85,31 +92,23 @@
 (use-package cape
   :after corfu
   :init
-  (dolist (f '(cape-dabbrev cape-file cape-keyword cape-path cape-yasnippet))
-    (add-to-list 'completion-at-point-functions f)))
+  (add-to-list 'completion-at-point-functions #'cape-file)
+  (add-to-list 'completion-at-point-functions #'cape-dabbrev)
+  (add-to-list 'completion-at-point-functions #'cape-keyword))
+
+(setq global-corfu-minibuffer nil)
+(use-package consult)
+(setq completion-in-region-function 'consult-completion-in-region)
 
 (use-package eglot
-  :hook ((python-mode simpc-mode zig-mode) . eglot-ensure)
+  :hook ((c-mode c++-mode python-mode zig-mode) . eglot-ensure)
   :config
-  ;; disable inlay hints
-  (setq eglot-inlay-hints-mode nil)
-
   (add-hook 'eglot-managed-mode-hook
-            (lambda ()
-              (when (bound-and-true-p eglot-inlay-hints-mode)
-                (eglot-inlay-hints-mode -1))
-              (setq-local completion-at-point-functions
-                          (append completion-at-point-functions
-                                  (list #'eglot-completion-at-point)))))
-
-  ;; server programs
-  (add-to-list 'eglot-server-programs
-               '(python-mode . ("pyright-langserver" "--stdio")))
-  (add-to-list 'eglot-server-programs
-               '(simpc-mode . ("clangd")))
-  (add-to-list 'eglot-server-programs
-               '(zig-mode . ("zls")))
-
+            (lambda () (eglot-inlay-hints-mode -1)))
+  (add-to-list 'eglot-server-programs '(python-mode . ("pyright" "--stdio")))
+  (add-to-list 'eglot-server-programs '(c-mode . ("clangd")))
+  (add-to-list 'eglot-server-programs '(c++-mode . ("clangd")))
+  (add-to-list 'eglot-server-programs '(zig-mode . ("zls")))
   :bind (:map eglot-mode-map
               ("C-c l d" . xref-find-definitions)
               ("C-c l r" . xref-find-references)
@@ -124,20 +123,17 @@
 (use-package yasnippet-snippets
   :after yasnippet)
 
-(use-package vertico
-  :init (vertico-mode 1))
+(use-package flyspell
+  :hook ((text-mode . flyspell-mode)
+         (prog-mode . flyspell-prog-mode))
+  :config
+  (setq ispell-program-name "hunspell"))
 
-(use-package orderless
-  :custom
-  (completion-styles '(orderless basic))
-  (completion-category-overrides '((file (styles partial-completion))))
-  (completion-category-defaults nil)
-  (completion-pcm-leading-wildcard t))
+(use-package flyspell-correct
+  :after flyspell
+  :bind (:map flyspell-mode-map
+              ("C-;" . flyspell-correct-wrapper)))
 
-;; stolen from Mr. zozin dotfiles <https://github.com/rexim/dotfiles>
-(require 'simpc-mode)
-(add-to-list 'auto-mode-alist
-             '("\\.\\(c\\|cc\\|cpp\\|h\\|hh\\|hpp\\)\\'" . simpc-mode))
 
 (global-set-key (kbd "C-c e") 'dired-jump)
 (global-set-key (kbd "C-c v") 'split-window-right)
@@ -146,41 +142,22 @@
 (global-set-key (kbd "C-c cn") 'compile-goto-error)
 (global-set-key (kbd "C-c ]") 'next-buffer)
 (global-set-key (kbd "C-c [") 'previous-buffer)
-(global-set-key (kbd "C-c r")
-                (lambda () (interactive) (load-file "~/.emacs")))
-(global-set-key (kbd "C-=")
-                (lambda () (interactive)
-                  (set-face-attribute 'default nil
-                                      :height (+ 10 (face-attribute 'default :height)))))
-(global-set-key (kbd "C--")
-                (lambda () (interactive)
-                  (set-face-attribute 'default nil
-                                      :height (- (face-attribute 'default :height) 10))))
+(global-set-key (kbd "C-c r") (lambda () (interactive) (load-file "~/.emacs")))
+(global-set-key (kbd "C-+") (lambda () (interactive)
+                              (set-face-attribute 'default nil :height (+ 10 (face-attribute 'default :height)))))
+(global-set-key (kbd "C--") (lambda () (interactive)
+                              (set-face-attribute 'default nil :height (- (face-attribute 'default :height) 10))))
+(global-set-key (kbd "C-0") (lambda () (interactive)
+                              (set-face-attribute 'default nil :height 110)))
 
 (require 'ansi-color)
-(defun rc/compilation-filter-hook ()
+(defun mk/ansi-compilation ()
   (ansi-color-apply-on-region compilation-filter-start (point)))
-(add-hook 'compilation-filter-hook 'rc/compilation-filter-hook)
+(add-hook 'compilation-filter-hook 'mk/ansi-compilation)
 
 (setq display-buffer-alist
-      '(("\\*\\(Man\\|WoMan\\).*\\*"
-         (display-buffer-reuse-window display-buffer-below-selected)
+      '(("\\*.*\\*" (display-buffer-reuse-window display-buffer-below-selected)
          (window-height . 0.4))))
 
 (use-package gruber-darker-theme
   :config (load-theme 'gruber-darker t))
-(custom-set-variables
- ;; custom-set-variables was added by Custom.
- ;; If you edit it by hand, you could mess it up, so be careful.
- ;; Your init file should contain only one such instance.
- ;; If there is more than one, they won't work right.
- '(package-selected-packages
-   '(cape corfu evil-collection gruber-darker-theme magit
-	  multiple-cursors orderless smartparens undo-tree vertico
-	  yasnippet-snippets zig-mode)))
-(custom-set-faces
- ;; custom-set-faces was added by Custom.
- ;; If you edit it by hand, you could mess it up, so be careful.
- ;; Your init file should contain only one such instance.
- ;; If there is more than one, they won't work right.
- )
