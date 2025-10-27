@@ -14,132 +14,137 @@
 (column-number-mode 1)
 (global-display-line-numbers-mode 1)
 (xterm-mouse-mode 1)
-
-(add-to-list 'default-frame-alist '(font . "roboto mono nerd font-11:weight=medium"))
+(add-to-list 'default-frame-alist '(font . "RobotoMono Nerd Font-11:weight=medium"))
 
 (require 'package)
 (setq package-archives
-      '(("gnu"   . "https://elpa.gnu.org/packages/")
+      '(("gnu" . "https://elpa.gnu.org/packages/")
         ("melpa" . "https://melpa.org/packages/")))
 (package-initialize)
+(unless package-archive-contents
+  (package-refresh-contents))
 
-(unless (package-installed-p 'use-package)
-  (package-refresh-contents)
-  (package-install 'use-package))
-(require 'use-package)
-(setq use-package-always-ensure t
-      use-package-verbose nil)
+(defun mk/ensure-package-installed (&rest packages)
+  (mapcar (lambda (pkg)
+            (unless (package-installed-p pkg)
+              (package-install pkg)))
+          packages))
 
-(use-package magit
-  :bind (("C-x g" . magit-status)))
+(mk/ensure-package-installed
+ 'magit
+ 'evil
+ 'evil-collection
+ 'undo-tree
+ 'multiple-cursors
+ 'smartparens
+ 'vertico
+ 'orderless
+ 'corfu
+ 'cape
+ 'consult
+ 'eglot
+ 'yasnippet
+ 'yasnippet-snippets
+ 'flyspell
+ 'flyspell-correct
+ 'gruber-darker-theme
+ 'gotham-theme
+ 'savehist
+ ;
+ )
+
+(global-set-key (kbd "C-x g") 'magit-status)
 (setq magit-auto-revert-mode nil)
 
-(use-package evil
-  :init
-  (setq evil-want-integration t
-        evil-want-keybinding nil)
-  :config
-  (evil-mode 1)
-  (setq evil-normal-state-cursor  '(box "#ffdd33")
-        evil-insert-state-cursor  '(box "#ffdd33")
-        evil-visual-state-cursor  '(box "#ffdd33")
-        evil-replace-state-cursor '(box "#ffdd33")
-        evil-operator-state-cursor '(box "#ffdd33"))
-  (set-default 'cursor-type 'box)
-  (set-face-background 'cursor "#ffdd33"))
+(setq evil-want-integration t
+      evil-want-keybinding nil
+      evil-default-cursor t)
 
-(use-package evil-collection
-  :after evil
-  :config (evil-collection-init))
+(require 'evil)
+(evil-mode 1)
 
-(use-package undo-tree
-  :config
-  (setq undo-tree-auto-save-history t
-        undo-tree-history-directory-alist '(("." . "~/.emacs.d/undo")))
-  (global-undo-tree-mode 1))
+(require 'evil-collection)
+(evil-collection-init)
+(setq cursor-type 'box)
+(setq evil-normal-state-cursor '(box)) 
+(setq evil-insert-state-cursor '((box . 5))) 
+(setq evil-visual-state-cursor '(hollow)) 
+(setq evil-motion-state-cursor '(box))
+(setq evil-replace-state-cursor '(box))
+(setq evil-operator-state-cursor '(hollow))
 
-(use-package multiple-cursors
-  :bind (("C->" . mc/mark-next-like-this)
-         ("C-<" . mc/mark-previous-like-this)
-         ("C-c C-<" . mc/mark-all-like-this)
-         ("C-S-c C-S-c" . mc/edit-lines)))
+(require 'undo-tree)
+(setq undo-tree-auto-save-history t
+      undo-tree-history-directory-alist '(("." . "~/.emacs.d/undo")))
+(global-undo-tree-mode 1)
 
-(use-package smartparens
-  :hook (prog-mode . smartparens-mode)
-  :config (smartparens-global-mode 1))
+(global-set-key (kbd "C-S-c C-S-c") 'mc/edit-lines)
+(global-set-key (kbd "C->") 'mc/mark-next-like-this)
+(global-set-key (kbd "C-<") 'mc/mark-previous-like-this)
+(global-set-key (kbd "C-c C-<") 'mc/mark-all-like-this)
+(global-set-key (kbd "C-\"") 'mc/skip-to-next-like-this)
+(global-set-key (kbd "C-:") 'mc/skip-to-previous-like-this)
 
-(use-package vertico
-  :init (vertico-mode 1))
+(require 'smartparens)
+(add-hook 'prog-mode-hook #'smartparens-mode)
+(smartparens-global-mode 1)
 
-(use-package orderless
-  :init
-  (setq completion-styles '(orderless basic)
-        completion-category-defaults nil
-        completion-category-overrides '((file (styles partial-completion)))))
+(require 'vertico)
+(vertico-mode 1)
 
-(use-package corfu
-  :init
-  (global-corfu-mode)
-  :custom
-  (corfu-auto t)
-  (corfu-auto-delay 0.25)
-  (corfu-auto-prefix 1)
-  :bind (:map corfu-map
-              ("C-n" . corfu-next)
-              ("C-p" . corfu-previous)
-              ("C-d" . corfu-show-documentation)))
+(require 'orderless)
+(setq completion-styles '(orderless basic)
+      completion-category-defaults nil
+      completion-category-overrides '((file (styles partial-completion))))
 
-(use-package cape
-  :after corfu
-  :init
-  (add-to-list 'completion-at-point-functions #'cape-file)
-  (add-to-list 'completion-at-point-functions #'cape-dabbrev)
-  (add-to-list 'completion-at-point-functions #'cape-keyword))
+(require 'corfu)
+(global-corfu-mode 1)
+(setq corfu-auto t
+      corfu-auto-delay 0.25
+      corfu-auto-prefix 1
+      global-corfu-minibuffer nil)
+(define-key corfu-map (kbd "C-n") 'corfu-next)
+(define-key corfu-map (kbd "C-p") 'corfu-previous)
+(define-key corfu-map (kbd "C-d") 'corfu-show-documentation)
 
-(setq global-corfu-minibuffer nil)
-(use-package consult)
+(require 'cape)
+(add-to-list 'completion-at-point-functions #'cape-file)
+(add-to-list 'completion-at-point-functions #'cape-dabbrev)
+(add-to-list 'completion-at-point-functions #'cape-keyword)
+
+(require 'consult)
 (setq completion-in-region-function 'consult-completion-in-region)
 
-(use-package eglot
-  :hook ((c-mode c++-mode python-mode zig-mode) . eglot-ensure)
-  :config
-  (add-hook 'eglot-managed-mode-hook
-            (lambda () (eglot-inlay-hints-mode -1)))
-  (add-to-list 'eglot-server-programs '(python-mode . ("pyright" "--stdio")))
-  (add-to-list 'eglot-server-programs '(c-mode . ("clangd")))
-  (add-to-list 'eglot-server-programs '(c++-mode . ("clangd")))
-  (add-to-list 'eglot-server-programs '(zig-mode . ("zls")))
-  :bind (:map eglot-mode-map
-              ("C-c l d" . xref-find-definitions)
-              ("C-c l r" . xref-find-references)
-              ("C-c l h" . eldoc)
-              ("C-c l R" . eglot-rename)
-              ("C-c l a" . eglot-code-actions)
-              ("C-c f m" . eglot-format-buffer)))
+(require 'eglot)
+(dolist (mode '(c-mode c++-mode python-mode zig-mode))
+  (add-hook (intern (concat (symbol-name mode) "-hook")) #'eglot-ensure))
+(add-hook 'eglot-managed-mode-hook (lambda () (eglot-inlay-hints-mode -1)))
+(setq eglot-server-programs
+      '((python-mode . ("pyright" "--stdio"))
+        (c-mode . ("clangd"))
+        (c++-mode . ("clangd"))
+        (zig-mode . ("zls"))))
+(define-key eglot-mode-map (kbd "C-c l d") 'xref-find-definitions)
+(define-key eglot-mode-map (kbd "C-c l r") 'xref-find-references)
+(define-key eglot-mode-map (kbd "C-c l h") 'eldoc)
+(define-key eglot-mode-map (kbd "C-c l R") 'eglot-rename)
+(define-key eglot-mode-map (kbd "C-c l a") 'eglot-code-actions)
+(define-key eglot-mode-map (kbd "C-c f m") 'eglot-format-buffer)
 
-(use-package yasnippet
-  :config (yas-global-mode 1))
+(require 'yasnippet)
+(yas-global-mode 1)
+(require 'yasnippet-snippets)
+(add-hook 'text-mode-hook #'flyspell-mode)
+(add-hook 'prog-mode-hook #'flyspell-prog-mode)
+(setq ispell-program-name "hunspell")
 
-(use-package yasnippet-snippets
-  :after yasnippet)
-
-(use-package flyspell
-  :hook ((text-mode . flyspell-mode)
-         (prog-mode . flyspell-prog-mode))
-  :config
-  (setq ispell-program-name "hunspell"))
-
-(use-package flyspell-correct
-  :after flyspell
-  :bind (:map flyspell-mode-map
-              ("C-;" . flyspell-correct-wrapper)))
-
+(with-eval-after-load 'flyspell
+  (define-key flyspell-mode-map (kbd "C-;") 'flyspell-correct-wrapper))
 
 (global-set-key (kbd "C-c e") 'dired-jump)
 (global-set-key (kbd "C-c v") 'split-window-right)
 (global-set-key (kbd "C-c s") 'split-window-below)
 (global-set-key (kbd "C-c cc") 'compile)
-(global-set-key (kbd "C-c cn") 'compile-goto-error)
 (global-set-key (kbd "C-c ]") 'next-buffer)
 (global-set-key (kbd "C-c [") 'previous-buffer)
 (global-set-key (kbd "C-c r") (lambda () (interactive) (load-file "~/.emacs")))
@@ -159,5 +164,20 @@
       '(("\\*.*\\*" (display-buffer-reuse-window display-buffer-below-selected)
          (window-height . 0.4))))
 
-(use-package gruber-darker-theme
-  :config (load-theme 'gruber-darker t))
+(require 'savehist)
+(setq savehist-file "~/.emacs.d/savehist")
+(setq savehist-additional-variables
+      '(compile-history))
+(savehist-mode 1)
+(require 'compile)
+(add-to-list 'compilation-error-regexp-alist
+             '("\\([a-zA-Z0-9\\.]+\\)(\\([0-9]+\\)\\(,\\([0-9]+\\)\\)?) \\(Warning:\\)?"
+               1 2 (4) (5)))
+
+(defun mk/focus-new-window (_buffer &optional _action)
+  (let ((win (get-buffer-window _buffer)))
+    (when (and win (not (window-minibuffer-p win)))
+      (select-window win))))
+(advice-add 'display-buffer :after #'mk/focus-new-window)
+
+(load-theme 'gruber-darker t)

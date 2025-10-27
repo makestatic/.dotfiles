@@ -54,11 +54,9 @@ fi
 bind -x '"\C-f": tmux-sessionizer' 2>/dev/null || true
 command -v starship >/dev/null 2>&1 && eval "$(starship init bash)" || true
 
-# source on login
-if [ -n "$PS1" ] && [ -f ~/.bashrc ] && [ "$BASH_SOURCE" != "$HOME/.bashrc" ]; then
-    case "$0" in
-        -*)
-            [[ -f ~/.bashrc ]] && . ~/.bashrc
-        ;;
-    esac
+if [ -f /usr/share/bash-completion/bash_completion ]; then
+    . /usr/share/bash-completion/bash_completion
 fi
+# >>> xmake >>>
+test -f "/home/makes/.xmake/profile" && source "/home/makes/.xmake/profile"
+# <<< xmake <<<
