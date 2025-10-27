@@ -49,6 +49,11 @@
  'flyspell-correct
  'gruber-darker-theme
  'gotham-theme
+ 'solarized-theme
+ 'zig-mode
+ 'lua-mode
+ 'cmake-mode
+ 'rust-mode
  'savehist
  ;
  )
@@ -68,17 +73,17 @@
 (setq cursor-type 'box)
 (setq evil-normal-state-cursor '(box)) 
 (setq evil-insert-state-cursor '((box . 5))) 
-(setq evil-visual-state-cursor '(hollow)) 
+(setq evil-visual-state-cursor '(box)) 
 (setq evil-motion-state-cursor '(box))
 (setq evil-replace-state-cursor '(box))
-(setq evil-operator-state-cursor '(hollow))
+(setq evil-operator-state-cursor '(box))
 
 (require 'undo-tree)
 (setq undo-tree-auto-save-history t
       undo-tree-history-directory-alist '(("." . "~/.emacs.d/undo")))
 (global-undo-tree-mode 1)
 
-(global-set-key (kbd "C-S-c C-S-c") 'mc/edit-lines)
+(global-set-key (kbd "C-S-c C-S-c") 'mc/mark-all-dwim)
 (global-set-key (kbd "C->") 'mc/mark-next-like-this)
 (global-set-key (kbd "C-<") 'mc/mark-previous-like-this)
 (global-set-key (kbd "C-c C-<") 'mc/mark-all-like-this)
@@ -180,4 +185,10 @@
       (select-window win))))
 (advice-add 'display-buffer :after #'mk/focus-new-window)
 
-(load-theme 'gruber-darker t)
+;; (with-eval-after-load 'evil
+;;   (with-eval-after-load 'evil-collection
+;;     (load-theme 'solarized-dark t)))
+
+(setq lsp-zig-zls-executable "/opt/zls")
+(setq lsp-zig-zig-exe-path "/opt/zig/zig")
+(setq lsp-zig-zig-lib-path "/opt/zig/")
