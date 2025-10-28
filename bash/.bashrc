@@ -1,11 +1,17 @@
-if ! emacsclient -e "(daemonp)" >/dev/null 2>&1; then
-    nohup emacs --daemon >/dev/null 2>&1 &
+if ! pgrep -x emacs >/dev/null; then
+    emacs --daemon >/dev/null 2>&1 &
 fi
 
-es() { emacsclient -c -a "" "$@"; }
-export EDITOR="emacsclient -c -a \"\""
-export VISUAL="$EDITOR"
+es() {
+    if [ $# -eq 0 ]; then
+        emacsclient -c -a ""
+    else
+        emacsclient -c -a "" "$@"
+    fi
+}
 
+export EDITOR="emacsclient -c -a ''"
+export VISUAL="$EDITOR"
 alias e=es
 alias v=es
 alias ke="emacsclient -e '(kill-emacs)'"
@@ -39,6 +45,6 @@ export PATH
 }
 
 bind -x '"\C-f": tmux-sessionizer' 2>/dev/null || true
-command -v starship >/dev/null 2>&1 && eval "$(starship init bash)" || true
 [ -f /usr/share/bash-completion/bash_completion ] && . /usr/share/bash-completion/bash_completion
 [ -f "$HOME/.xmake/profile" ] && source "$HOME/.xmake/profile"
+. "$HOME/.cargo/env"

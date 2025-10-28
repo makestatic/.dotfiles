@@ -14,7 +14,8 @@
 (column-number-mode 1)
 (global-display-line-numbers-mode 1)
 (xterm-mouse-mode 1)
-(add-to-list 'default-frame-alist '(font . "RobotoMono Nerd Font-11:weight=medium"))
+(add-to-list 'default-frame-alist
+             '(font . "RobotoMono Nerd Font-11:weight=medium"))
 
 (require 'package)
 (setq package-archives
@@ -25,38 +26,19 @@
   (package-refresh-contents))
 
 (defun mk/ensure-package-installed (&rest packages)
-  (mapcar (lambda (pkg)
-            (unless (package-installed-p pkg)
-              (package-install pkg)))
-          packages))
+  (mapc (lambda (pkg)
+          (unless (package-installed-p pkg)
+            (package-install pkg)))
+        packages))
 
 (mk/ensure-package-installed
- 'magit
- 'evil
- 'evil-collection
- 'undo-tree
- 'multiple-cursors
- 'smartparens
- 'vertico
- 'orderless
- 'corfu
- 'cape
- 'consult
- 'eglot
- 'yasnippet
- 'yasnippet-snippets
- 'flyspell
- 'flyspell-correct
- 'gruber-darker-theme
- 'gotham-theme
- 'solarized-theme
- 'zig-mode
- 'lua-mode
- 'cmake-mode
- 'rust-mode
- 'savehist
- ;
- )
+ 'magit 'evil 'evil-collection 'undo-tree 'multiple-cursors 'smartparens
+ 'ido 'flx-ido
+ 'corfu 'cape 'consult 'eglot
+ 'yasnippet 'yasnippet-snippets 'flyspell
+ 'gruber-darker-theme 'gotham-theme 'solarized-theme
+ 'zig-mode 'lua-mode 'cmake-mode 'rust-mode
+ 'savehist)
 
 (global-set-key (kbd "C-x g") 'magit-status)
 (setq magit-auto-revert-mode nil)
@@ -64,19 +46,18 @@
 (setq evil-want-integration t
       evil-want-keybinding nil
       evil-default-cursor t)
-
 (require 'evil)
 (evil-mode 1)
-
 (require 'evil-collection)
 (evil-collection-init)
-(setq cursor-type 'box)
-(setq evil-normal-state-cursor '(box)) 
-(setq evil-insert-state-cursor '((box . 5))) 
-(setq evil-visual-state-cursor '(box)) 
-(setq evil-motion-state-cursor '(box))
-(setq evil-replace-state-cursor '(box))
-(setq evil-operator-state-cursor '(box))
+
+(setq cursor-type 'box
+      evil-normal-state-cursor '(box)
+      evil-insert-state-cursor '((box . 5))
+      evil-visual-state-cursor '(box)
+      evil-motion-state-cursor '(box)
+      evil-replace-state-cursor '(box)
+      evil-operator-state-cursor '(box))
 
 (require 'undo-tree)
 (setq undo-tree-auto-save-history t
@@ -94,13 +75,14 @@
 (add-hook 'prog-mode-hook #'smartparens-mode)
 (smartparens-global-mode 1)
 
-(require 'vertico)
-(vertico-mode 1)
-
-(require 'orderless)
-(setq completion-styles '(orderless basic)
-      completion-category-defaults nil
-      completion-category-overrides '((file (styles partial-completion))))
+(require 'ido)
+(ido-mode t)
+(ido-everywhere t)
+(flx-ido-mode t)
+(setq ido-enable-flex-matching t
+      ido-use-faces t)
+(global-set-key (kbd "C-x C-f") 'ido-find-file)
+(global-set-key (kbd "C-x b") 'ido-switch-buffer)
 
 (require 'corfu)
 (global-corfu-mode 1)
@@ -121,28 +103,29 @@
 (setq completion-in-region-function 'consult-completion-in-region)
 
 (require 'eglot)
-(dolist (mode '(c-mode c++-mode python-mode zig-mode))
+(dolist (mode '(c-mode c++-mode python-mode zig-mode rust-mode))
   (add-hook (intern (concat (symbol-name mode) "-hook")) #'eglot-ensure))
 (add-hook 'eglot-managed-mode-hook (lambda () (eglot-inlay-hints-mode -1)))
 (setq eglot-server-programs
       '((python-mode . ("pyright" "--stdio"))
         (c-mode . ("clangd"))
         (c++-mode . ("clangd"))
-        (zig-mode . ("zls"))))
+        (zig-mode . ("/opt/zls"))
+        (rust-mode . ("rust-analyzer"))))
 (define-key eglot-mode-map (kbd "C-c l d") 'xref-find-definitions)
 (define-key eglot-mode-map (kbd "C-c l r") 'xref-find-references)
 (define-key eglot-mode-map (kbd "C-c l h") 'eldoc)
 (define-key eglot-mode-map (kbd "C-c l R") 'eglot-rename)
-(define-key eglot-mode-map (kbd "C-c l a") 'eglot-code-actions)
-(define-key eglot-mode-map (kbd "C-c f m") 'eglot-format-buffer)
+(define-key eglot-mode-map (kbd "C-c l c") 'eglot-code-actions)
+(define-key eglot-mode-map (kbd "C-c l f") 'eglot-format-buffer)
 
 (require 'yasnippet)
 (yas-global-mode 1)
 (require 'yasnippet-snippets)
+
 (add-hook 'text-mode-hook #'flyspell-mode)
 (add-hook 'prog-mode-hook #'flyspell-prog-mode)
 (setq ispell-program-name "hunspell")
-
 (with-eval-after-load 'flyspell
   (define-key flyspell-mode-map (kbd "C-;") 'flyspell-correct-wrapper))
 
@@ -153,10 +136,13 @@
 (global-set-key (kbd "C-c ]") 'next-buffer)
 (global-set-key (kbd "C-c [") 'previous-buffer)
 (global-set-key (kbd "C-c r") (lambda () (interactive) (load-file "~/.emacs")))
+
 (global-set-key (kbd "C-+") (lambda () (interactive)
-                              (set-face-attribute 'default nil :height (+ 10 (face-attribute 'default :height)))))
+                              (set-face-attribute 'default nil
+                                                  :height (+ 10 (face-attribute 'default :height)))))
 (global-set-key (kbd "C--") (lambda () (interactive)
-                              (set-face-attribute 'default nil :height (- (face-attribute 'default :height) 10))))
+                              (set-face-attribute 'default nil
+                                                  :height (- (face-attribute 'default :height) 10))))
 (global-set-key (kbd "C-0") (lambda () (interactive)
                               (set-face-attribute 'default nil :height 110)))
 
@@ -166,29 +152,29 @@
 (add-hook 'compilation-filter-hook 'mk/ansi-compilation)
 
 (setq display-buffer-alist
-      '(("\\*.*\\*" (display-buffer-reuse-window display-buffer-below-selected)
+      '(("\*.*\*"
+         (display-buffer-reuse-window display-buffer-below-selected)
          (window-height . 0.4))))
 
 (require 'savehist)
-(setq savehist-file "~/.emacs.d/savehist")
-(setq savehist-additional-variables
-      '(compile-history))
+(setq savehist-file "~/.emacs.d/savehist"
+      savehist-additional-variables '(compile-history))
 (savehist-mode 1)
-(require 'compile)
-(add-to-list 'compilation-error-regexp-alist
-             '("\\([a-zA-Z0-9\\.]+\\)(\\([0-9]+\\)\\(,\\([0-9]+\\)\\)?) \\(Warning:\\)?"
-               1 2 (4) (5)))
 
-(defun mk/focus-new-window (_buffer &optional _action)
-  (let ((win (get-buffer-window _buffer)))
-    (when (and win (not (window-minibuffer-p win)))
-      (select-window win))))
-(advice-add 'display-buffer :after #'mk/focus-new-window)
-
-;; (with-eval-after-load 'evil
-;;   (with-eval-after-load 'evil-collection
-;;     (load-theme 'solarized-dark t)))
+(load-theme 'gruber-darker t)
 
 (setq lsp-zig-zls-executable "/opt/zls")
 (setq lsp-zig-zig-exe-path "/opt/zig/zig")
 (setq lsp-zig-zig-lib-path "/opt/zig/")
+(custom-set-variables
+ ;; custom-set-variables was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ '(package-selected-packages nil))
+(custom-set-faces
+ ;; custom-set-faces was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ )
