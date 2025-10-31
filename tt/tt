@@ -1,0 +1,22 @@
+#!/data/data/com.termux/files/usr/bin/bash
+set -e
+pkill -9 -f "termux.x11" 2>/dev/null || true
+pulseaudio --start --load="module-native-protocol-tcp auth-ip-acl=127.0.0.1 auth-anonymous=1" --exit-idle-time=-1
+virgl_test_server_android --angle-gl &
+export XDG_RUNTIME_DIR="${TMPDIR}"
+termux-x11 :0 >/dev/null 2>&1 &
+sleep 4
+am start --user 0 -n com.termux.x11/com.termux.x11.MainActivity >/dev/null 2>&1
+sleep 2
+chmod -R 1777 "${TMPDIR}/.virgl_test" 2>/dev/null || true
+proot-distro login archlinux --user makes --shared-tmp -- /bin/bash -c '
+  export PULSE_SERVER=127.0.0.1
+  export XDG_RUNTIME_DIR=${TMPDIR}
+  export DISPLAY=:0
+  export GALLIUM_DRIVER=virpipe
+  export MESA_GL_VERSION_OVERRIDE=3.3
+  export MESA_GLSL_VERSION_OVERRIDE=330
+  i3
+'
+
+exit 0

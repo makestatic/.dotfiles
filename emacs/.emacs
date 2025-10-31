@@ -1,4 +1,5 @@
 (add-to-list 'load-path "~/.emacs.local/")
+(add-to-list 'custom-theme-load-path "~/.emacs.local/")
 
 (setq inhibit-startup-screen t
       make-backup-files nil
@@ -14,8 +15,7 @@
 (column-number-mode 1)
 (global-display-line-numbers-mode 1)
 (xterm-mouse-mode 1)
-(add-to-list 'default-frame-alist
-             '(font . "RobotoMono Nerd Font-11:weight=medium"))
+(add-to-list 'default-frame-alist '(font . "RobotoMono Nerd Font-11:weight=medium"))
 
 (require 'package)
 (setq package-archives
@@ -166,15 +166,3 @@
 (setq lsp-zig-zls-executable "/opt/zls")
 (setq lsp-zig-zig-exe-path "/opt/zig/zig")
 (setq lsp-zig-zig-lib-path "/opt/zig/")
-(custom-set-variables
- ;; custom-set-variables was added by Custom.
- ;; If you edit it by hand, you could mess it up, so be careful.
- ;; Your init file should contain only one such instance.
- ;; If there is more than one, they won't work right.
- '(package-selected-packages nil))
-(custom-set-faces
- ;; custom-set-faces was added by Custom.
- ;; If you edit it by hand, you could mess it up, so be careful.
- ;; Your init file should contain only one such instance.
- ;; If there is more than one, they won't work right.
- )
