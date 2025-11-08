@@ -1,0 +1,11 @@
+[user]
+	email = alielmalki.developer@gmail.com
+	name = ali.
+[merge]
+	conflictStyle = diff3
+[magit]
+	hideCampaign = true
+[alias]
+    tree = log --graph --decorate --pretty=oneline --abbrev-commit --all
+[init]
+	defaultBranch = main

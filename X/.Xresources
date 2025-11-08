@@ -1,0 +1,25 @@
+st.alpha: 1
+st.alphaOffset: 0.0
+
+! st.font:		RobotoMono Nerd Font:style:bold:pixelsize=18:antialias=true:autohint=true
+st.font:	Perfect DOS VGA 437 Win:style:regular:pixelsize=20:antialias=true:autohint=true
+
+*.foreground:   #ffffff
+*.background:   #000000
+*.cursorColor:  #ffffff
+*.color0:       #000000
+*.color8:       #808080
+*.color1:       #ff0000
+*.color9:       #ff0000
+*.color2:       #33ff00
+*.color10:      #33ff00
+*.color3:       #ff0099
+*.color11:      #ff0099
+*.color4:       #0066ff
+*.color12:      #0066ff
+*.color5:       #cc00ff
+*.color13:      #cc00ff
+*.color6:       #00ffff
+*.color14:      #00ffff
+*.color7:       #d0d0d0
+*.color15:      #ffffff
