@@ -1,5 +1,5 @@
 vim.g.mapleader = " "
-vim.wo.signcolumn = "auto"
+vim.opt.signcolumn = "auto"
 vim.opt.mouse = "a"
 vim.opt.ignorecase = true
 vim.opt.smartcase = true
