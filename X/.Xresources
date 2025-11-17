@@ -2,7 +2,8 @@ st.alpha: 1
 st.alphaOffset: 0.0
 
 ! st.font:		RobotoMono Nerd Font:style:bold:pixelsize=18:antialias=true:autohint=true
-st.font:	Perfect DOS VGA 437 Win:style:regular:pixelsize=20:antialias=true:autohint=true
+! st.font:	Perfect DOS VGA 437 Win:style:regular:pixelsize=20:antialias=true:autohint=true
+st.font:	PerfectDOSVGA437Win Nerd Font:style:regular:pixelsize=20:antialias=true:autohint=true
 
 *.foreground:   #ffffff
 *.background:   #000000

@@ -2,6 +2,7 @@
 #     emacs --daemon >/dev/null 2>&1 &
 # fi
 #
+set -o vi
 es() {
     if [ $# -eq 0 ]; then
         emacsclient -c -a ""
@@ -24,7 +25,7 @@ alias mkdir='mkdir -pv'
 alias mv='mv -iv'
 alias cp='cp -iv'
 alias rm='rm -rfv'
-alias du='du -ch'
+alias du='du -h'
 alias now='date "+%T"'
 alias datef='date "+%d-%m-%Y"'
 alias ports='netstat -tulanp'
@@ -33,7 +34,7 @@ alias path='echo -e "${PATH//:/\\n}"'
 alias tmux-sessionizer='~/tmux-sessionizer.sh'
 
 export PATH="/opt:$PATH"
-for d in gcc-15/bin clang-21/bin zig rust/bin c3 ldc/bin go/bin node/bin; do
+for d in gcc-15/bin clang-21/bin v zig rust/bin c3 ldc/bin go/bin node/bin; do
     [ -d "/opt/$d" ] && case ":$PATH:" in *":/opt/$d:"*) ;; *) PATH="/opt/$d:$PATH" ;; esac
 done
 export PATH

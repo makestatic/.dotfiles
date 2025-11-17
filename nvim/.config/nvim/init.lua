@@ -52,7 +52,7 @@ end
 vim.opt.rtp:prepend(lazypath)
 
 require("lazy").setup({
-	{ "echasnovski/mini.surround",        version = "*",            opts = {} },
+	{ "echasnovski/mini.surround",        version = "*", opts = {} },
 	{ "mathofprimes/nightvision-nvim" },
 	{ "skywind3000/vim-quickui" },
 	{ "letorbi/vim-colors-modern-borland" },
@@ -60,6 +60,13 @@ require("lazy").setup({
 	{ "makestatic/devel.nvim" },
 	{ "CosecSecCot/cosec-twilight.nvim" },
 	{ "sainnhe/gruvbox-material" },
+	{ 'nvim-mini/mini.indentscope',       version = '*', opts = {} },
+	{
+		"lewis6991/gitsigns.nvim",
+		opts = {
+			current_line_blame = true,
+		},
+	},
 	{ "Mofiqul/dracula.nvim" },
 	{ "yorickpeterse/nvim-grey" },
 	{ "rebelot/kanagawa.nvim" },
@@ -68,7 +75,7 @@ require("lazy").setup({
 	{ "Mofiqul/vscode.nvim" },
 	{ "armannikoyan/rusty" },
 	{ "rktjmp/lush.nvim" },
-	{ "vague2k/vague.nvim",               opts = { italic = false } },
+	{ "vague2k/vague.nvim",      opts = { italic = false } },
 
 	{
 		"nvim-lualine/lualine.nvim",
@@ -364,27 +371,18 @@ require("lazy").setup({
 	},
 
 	{
+		"cdmill/focus.nvim",
+		cmd = { "Focus", "Zen", "Narrow" },
+		opts = {
+		}
+	},
+
+	{
 		"TimUntersberger/neogit",
 		dependencies = "nvim-lua/plenary.nvim",
 		config = function()
 			require("neogit").setup()
 			vim.keymap.set("n", "<leader>ll", ":Neogit<CR>")
-		end,
-	},
-	{
-		"Exafunction/windsurf.nvim",
-		dependencies = { "nvim-lua/plenary.nvim" },
-		config = function()
-			require("codeium").setup({
-				enable_cmp_source = false,
-				virtual_text = {
-					enabled = true,
-					idle_delay = 75,
-					virtual_text_priority = 65535,
-					map_keys = true,
-					key_bindings = { accept = "<Tab>", next = "<M-]>", prev = "<M-[>" },
-				},
-			})
 		end,
 	},
 })
