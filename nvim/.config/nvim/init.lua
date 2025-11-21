@@ -335,6 +335,22 @@ require("lazy").setup({
 	},
 
 	{
+		'krady21/compiler-explorer.nvim',
+		dependencies = {
+			'stevearc/dressing.nvim',
+		},
+		config = function()
+			require("compiler-explorer").setup({
+				line_match = {
+					highlight = true,
+					jump = true,
+				},
+				open_qflist = true,
+				split = "vsplit",
+			})
+		end,
+	},
+	{
 		"ibhagwan/fzf-lua",
 		dependencies = { "nvim-tree/nvim-web-devicons" },
 		config = function()

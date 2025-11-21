@@ -2,7 +2,7 @@
 #     emacs --daemon >/dev/null 2>&1 &
 # fi
 #
-set -o vi
+#set -o vi
 es() {
     if [ $# -eq 0 ]; then
         emacsclient -c -a ""
