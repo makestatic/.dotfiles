@@ -1,4 +1,3 @@
-# program - example
 # See COPYING for license details
 
 .POSIX:
@@ -31,12 +30,8 @@ $(EXE): $(OBJ)
 clean:
 	rm -f $(EXE) $(OBJ) $(DEPS) *.tar.gz
 
-dist:
-	rm -rf $(EXE)-$(VERSION)
-	mkdir -p $(EXE)-$(VERSION)
-	cp -R *.c Makefile COPYING $$EXE_TMP
-	tar -czf $(EXE)-$(VERSION).tar.gz -C $(EXE)-$(VERSION) .
-	rm -rf $(EXE)-$(VERSION)
+dist: clean
+	tar -czf $(EXE)-$(VERSION).tar.gz .
 
 install: $(EXE)
 	mkdir -p $(DESTDIR)$(PREFIX)/bin
@@ -45,5 +40,6 @@ install: $(EXE)
 
 uninstall:
 	rm -f $(DESTDIR)$(PREFIX)/bin/$(EXE)
+
 
 .PHONY: all options clean dist install uninstall
